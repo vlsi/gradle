@@ -22,7 +22,7 @@ import com.google.common.reflect.TypeToken;
 import org.gradle.api.Named;
 import org.gradle.api.NonNullApi;
 import org.gradle.api.Task;
-import org.gradle.api.artifacts.transform.CacheableTransformAction;
+import org.gradle.api.artifacts.transform.CacheableTransform;
 import org.gradle.api.artifacts.transform.TransformAction;
 import org.gradle.api.internal.project.taskfactory.TaskClassInfoStore;
 import org.gradle.api.provider.Provider;
@@ -122,7 +122,7 @@ public class PropertyValidationAccess {
             // Treat all errors as warnings, for backwards compatibility
             mapErrorsToWarnings = true;
         } else if (TransformAction.class.isAssignableFrom(topLevelBean)) {
-            cacheable = topLevelBean.isAnnotationPresent(CacheableTransformAction.class);
+            cacheable = topLevelBean.isAnnotationPresent(CacheableTransform.class);
             mapErrorsToWarnings = false;
         } else {
             cacheable = false;
