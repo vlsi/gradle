@@ -24,6 +24,7 @@ import org.gradle.api.NonNullApi;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.transform.CacheableTransform;
 import org.gradle.api.artifacts.transform.TransformAction;
+import org.gradle.api.internal.TaskInternal;
 import org.gradle.api.internal.project.taskfactory.TaskClassInfoStore;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.InputDirectory;
@@ -103,6 +104,11 @@ public class PropertyValidationAccess {
     }
 
     private void collectTypeValidationProblems(Class<?> topLevelBean, Map<String, Boolean> problems, boolean enableStricterValidation) {
+        // Skip this for now
+        if (topLevelBean.equals(TaskInternal.class)) {
+            return;
+        }
+
         TypeMetadataStore metadataStore = null;
         for (TypeScheme typeScheme : typeSchemes) {
             if (typeScheme.appliesTo(topLevelBean)) {
