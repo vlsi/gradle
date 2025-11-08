@@ -15,7 +15,6 @@
  */
 package org.gradle.api.internal.tasks.userinput;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.gradle.api.Transformer;
 import org.gradle.internal.logging.events.BooleanQuestionPromptEvent;
 import org.gradle.internal.logging.events.IntQuestionPromptEvent;
@@ -63,13 +62,13 @@ public class DefaultUserInputHandler extends AbstractUserInputHandler {
         @Override
         public Boolean askYesNoQuestion(String question) {
             YesNoQuestionPromptEvent prompt = new YesNoQuestionPromptEvent(clock.getCurrentTime(), question);
-            return prompt(prompt, BooleanUtils::toBoolean);
+            return prompt(prompt, DefaultUserInputHandler::toBoolean);
         }
 
         @Override
         public boolean askBooleanQuestion(String question, final boolean defaultValue) {
             BooleanQuestionPromptEvent prompt = new BooleanQuestionPromptEvent(clock.getCurrentTime(), question, defaultValue);
-            return prompt(prompt, defaultValue, BooleanUtils::toBoolean);
+            return prompt(prompt, defaultValue, DefaultUserInputHandler::toBoolean);
         }
 
         @Override
@@ -201,5 +200,13 @@ public class DefaultUserInputHandler extends AbstractUserInputHandler {
         public T ask() {
             return owner.selectOption(question, options, defaultOption, renderer);
         }
+    }
+
+    private static boolean toBoolean(String str) {
+        if (str == null) {
+            return false;
+        }
+        String lower = str.toLowerCase();
+        return "true".equals(lower) || "yes".equals(lower) || "y".equals(lower) || "on".equals(lower);
     }
 }

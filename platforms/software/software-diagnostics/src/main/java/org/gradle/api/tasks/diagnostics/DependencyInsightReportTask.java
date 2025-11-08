@@ -18,7 +18,6 @@ package org.gradle.api.tasks.diagnostics;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Incubating;
@@ -79,6 +78,7 @@ import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.Description;
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.Failure;
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.Header;
@@ -413,7 +413,7 @@ public abstract class DependencyInsightReportTask extends DefaultTask {
         @Override
         public void renderNode(StyledTextOutput out, RenderableDependency dependency, boolean alreadyRendered) {
             out.withStyle(Identifier).text(dependency.getName());
-            if (StringUtils.isNotEmpty(dependency.getDescription())) {
+            if (TextUtil.isNotEmpty(dependency.getDescription())) {
                 out.withStyle(Description).text(" (" + dependency.getDescription() + ")");
             }
             switch (dependency.getResolutionState()) {
@@ -447,10 +447,10 @@ public abstract class DependencyInsightReportTask extends DefaultTask {
 
         private void printSection(StyledTextOutput out, Section extraDetail, int depth) {
             out.println();
-            String indent = StringUtils.leftPad("", 3 * depth) + (depth > 1 ? "- " : "");
+            String indent = TextUtil.leftPad("", 3 * depth) + (depth > 1 ? "- " : "");
             String appendix = extraDetail.getChildren().isEmpty() ? "" : ":";
-            String description = StringUtils.trim(extraDetail.getDescription());
-            String padding = "\n" + StringUtils.leftPad("", indent.length());
+            String description = extraDetail.getDescription(.trim());
+            String padding = "\n" + TextUtil.leftPad("", indent.length());
             description = description.replaceAll("(?m)(\r?\n)", padding);
             out.withStyle(Description).text(indent + description + appendix);
         }

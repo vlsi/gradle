@@ -17,17 +17,16 @@
 package org.gradle.cache.internal;
 
 import com.google.common.primitives.Ints;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-
+import org.gradle.util.internal.ArrayUtils;
 import java.util.Arrays;
 
+import org.gradle.util.internal.TextUtil;
 public final class CacheVersion implements Comparable<CacheVersion> {
 
     public static final String COMPONENT_SEPARATOR = ".";
 
     public static CacheVersion parse(String version) {
-        String[] parts = StringUtils.split(version, COMPONENT_SEPARATOR);
+        String[] parts = TextUtil.split(version, COMPONENT_SEPARATOR);
         int[] components = new int[parts.length];
         for (int i = 0; i < parts.length; i++) {
             components[i] = Integer.parseInt(parts[i]);

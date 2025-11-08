@@ -62,7 +62,7 @@ import javax.inject.Inject;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.apache.commons.lang3.StringUtils.capitalize;
+import static org.gradle.util.internal.TextUtil.capitalize;
 import static org.gradle.api.internal.ConfigurationCacheDegradation.requireDegradation;
 
 /**

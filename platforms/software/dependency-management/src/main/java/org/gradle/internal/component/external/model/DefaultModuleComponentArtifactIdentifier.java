@@ -16,12 +16,12 @@
 
 package org.gradle.internal.component.external.model;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.internal.component.model.DefaultIvyArtifactName;
 import org.gradle.internal.component.model.IvyArtifactName;
 import org.jspecify.annotations.Nullable;
 
+import org.gradle.util.internal.TextUtil;
 public class DefaultModuleComponentArtifactIdentifier implements ModuleComponentArtifactIdentifier {
     private final ModuleComponentIdentifier componentIdentifier;
     private final IvyArtifactName name;
@@ -43,8 +43,8 @@ public class DefaultModuleComponentArtifactIdentifier implements ModuleComponent
 
     @Override
     public String getFileName() {
-        String classifier = StringUtils.isNotEmpty(name.getClassifier()) ? "-" + name.getClassifier() : "";
-        String extension = StringUtils.isNotEmpty(name.getExtension()) ? "." + name.getExtension() : "";
+        String classifier = TextUtil.isNotEmpty(name.getClassifier()) ? "-" + name.getClassifier() : "";
+        String extension = TextUtil.isNotEmpty(name.getExtension()) ? "." + name.getExtension() : "";
         return name.getName() + "-" + componentIdentifier.getVersion() + classifier + extension;
     }
 

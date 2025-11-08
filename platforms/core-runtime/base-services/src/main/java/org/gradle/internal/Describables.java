@@ -17,9 +17,9 @@
 package org.gradle.internal;
 
 import com.google.common.base.Objects;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Describable;
 
+import org.gradle.util.internal.TextUtil;
 public class Describables {
     private Describables() {
     }
@@ -297,7 +297,7 @@ public class Describables {
         public String getCapitalizedDisplayName() {
             synchronized (this) {
                 if (capDisplayName == null) {
-                    capDisplayName = describable instanceof DisplayName ? ((DisplayName) describable).getCapitalizedDisplayName() : StringUtils.capitalize(getDisplayName());
+                    capDisplayName = describable instanceof DisplayName ? ((DisplayName) describable).getCapitalizedDisplayName() : TextUtil.capitalize(getDisplayName());
                     if (displayName != null) {
                         describable = null;
                     }

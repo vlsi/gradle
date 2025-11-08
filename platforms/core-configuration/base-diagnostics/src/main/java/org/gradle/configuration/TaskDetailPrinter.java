@@ -16,7 +16,6 @@
 package org.gradle.configuration;
 
 import com.google.common.collect.Sets;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.internal.logging.text.LinePrefixingStyledTextOutput;
 import org.gradle.internal.logging.text.StyledTextOutput;
 import org.jspecify.annotations.NullMarked;
@@ -35,6 +34,7 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.UserInput;
 import static org.gradle.util.internal.CollectionUtils.collect;
 import static org.gradle.util.internal.CollectionUtils.sort;
@@ -179,7 +179,7 @@ public class TaskDetailPrinter {
     }
 
     private LinePrefixingStyledTextOutput createIndentedOutput(StyledTextOutput output, int offset) {
-        return createIndentedOutput(output, StringUtils.leftPad("", offset, ' '));
+        return createIndentedOutput(output, TextUtil.leftPad("", offset, ' '));
     }
 
     private LinePrefixingStyledTextOutput createIndentedOutput(StyledTextOutput output, String prefix) {

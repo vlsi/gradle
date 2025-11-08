@@ -17,7 +17,6 @@
 package org.gradle.nativeplatform.test.xctest.internal.execution;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -65,7 +64,7 @@ public class XCTestSelection {
     }
 
     private static String getTestSuiteName(String includedTestCase) {
-        return StringUtils.split(includedTestCase, '/')[0];
+        return includedTestCase.split("/")[0];
     }
 
     private void includeAllTestIfEmpty() {
@@ -88,7 +87,7 @@ public class XCTestSelection {
     }
 
     private String prepareIncludedTest(String testFilter, Set<String> testSuiteCache) {
-        String[] tokens = StringUtils.splitPreserveAllTokens(testFilter, '.');
+        String[] tokens = testFilter.split("\\.", -1);  // -1 to preserve trailing empty strings
         if (tokens.length > 3) {
             throw new IllegalArgumentException(String.format("'%s' is an invalid pattern. Patterns should have one or two dots.", testFilter));
         } else if (tokens.length == 3) {

@@ -16,7 +16,6 @@
 
 package org.gradle.api.reporting.components.internal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.tasks.diagnostics.internal.text.TextReportBuilder;
 import org.gradle.internal.logging.text.TreeFormatter;
 import org.gradle.internal.service.scopes.Scope;
@@ -37,6 +36,7 @@ import org.gradle.util.internal.GUtil;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.gradle.util.internal.TextUtil;
 // TODO - bust up this hierarchy and compose using interfaces instead
 @ServiceScope(Scope.Global.class)
 public abstract class AbstractBinaryRenderer<T extends BinarySpec> extends ReportRenderer<BinarySpec, TextReportBuilder> {
@@ -48,7 +48,7 @@ public abstract class AbstractBinaryRenderer<T extends BinarySpec> extends Repor
 
     @Override
     public void render(BinarySpec binary, TextReportBuilder builder) {
-        String heading = StringUtils.capitalize(binary.getDisplayName());
+        String heading = TextUtil.capitalize(binary.getDisplayName());
         if (!binary.isBuildable()) {
             heading += " (not buildable)";
         }

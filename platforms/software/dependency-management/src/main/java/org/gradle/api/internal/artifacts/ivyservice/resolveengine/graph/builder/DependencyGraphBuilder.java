@@ -17,9 +17,8 @@ package org.gradle.api.internal.artifacts.ivyservice.resolveengine.graph.builder
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.gradle.api.GradleException;
+import org.gradle.util.internal.Pair;
 import org.gradle.api.artifacts.component.ComponentSelector;
 import org.gradle.api.artifacts.component.ModuleComponentSelector;
 import org.gradle.api.internal.artifacts.ComponentSelectorConverter;
@@ -456,7 +455,7 @@ public class DependencyGraphBuilder {
             selected.getSelectionReason()
         );
 
-        return new ImmutablePair<>(conflict, failureResolutions.forVersionConflict(conflict));
+        return Pair.of(conflict, failureResolutions.forVersionConflict(conflict));
     }
 
     /**

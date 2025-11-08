@@ -16,7 +16,6 @@
 
 package org.gradle.internal.instantiation.generator;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Describable;
 import org.gradle.internal.DisplayName;
 import org.gradle.internal.instantiation.InstanceGenerator;
@@ -27,6 +26,7 @@ import org.gradle.internal.service.ServiceLookup;
 import org.gradle.internal.state.ModelObject;
 import org.gradle.internal.state.OwnerAware;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * A helper used by generated classes to create managed instances.
  */
@@ -124,7 +124,7 @@ public class ManagedObjectFactory {
 
         @Override
         public String getCapitalizedDisplayName() {
-            return StringUtils.capitalize(getDisplayName());
+            return TextUtil.capitalize(getDisplayName());
         }
 
         @Override

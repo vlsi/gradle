@@ -15,12 +15,11 @@
  */
 package org.gradle.api.internal.tasks.testing.report;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * The model for the test report.
  *
@@ -66,7 +65,7 @@ public class AllTestResults extends CompositeTestResults {
     }
 
     private PackageTestResults addPackageForClass(String className) {
-        String packageName = StringUtils.substringBeforeLast(className, ".");
+        String packageName = TextUtil.substringBeforeLast(className, ".");
         if (packageName.equals(className)) {
             packageName = "";
         }

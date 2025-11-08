@@ -16,12 +16,12 @@
 
 package org.gradle.language.base.internal.plugins;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Rule;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.TaskContainer;
 
+import org.gradle.util.internal.TextUtil;
 public class CleanRule implements Rule {
 
     public static final String CLEAN = "clean";
@@ -52,7 +52,7 @@ public class CleanRule implements Rule {
             return;
         }
 
-        Task task = tasks.findByName(StringUtils.uncapitalize(targetTaskName));
+        Task task = tasks.findByName(TextUtil.uncapitalize(targetTaskName));
         if (task == null) {
             return;
         }

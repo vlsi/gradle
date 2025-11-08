@@ -24,7 +24,6 @@ import groovy.lang.MetaMethod;
 import groovy.lang.MetaProperty;
 import groovy.lang.MissingMethodException;
 import groovy.lang.MissingPropertyException;
-import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.runtime.InvokerInvocationException;
 import org.codehaus.groovy.runtime.MetaClassHelper;
 import org.codehaus.groovy.runtime.metaclass.MultipleSetterProperty;
@@ -54,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * A {@link DynamicObject} which uses groovy reflection to provide access to the properties and methods of a bean.
  *
@@ -276,7 +276,7 @@ public class BeanDynamicObject extends AbstractDynamicObject {
                 // Do not check for opaque properties when implementing PropertyMixIn, as this is expensive
             }
 
-            MetaMethod metaMethod = lookupMethod(metaClass, "is" + StringUtils.capitalize(name), MetaClassHelper.EMPTY_CLASS_ARRAY);
+            MetaMethod metaMethod = lookupMethod(metaClass, "is" + TextUtil.capitalize(name), MetaClassHelper.EMPTY_CLASS_ARRAY);
             if (metaMethod != null && metaMethod.getReturnType().equals(Boolean.class)) {
                 DeprecationLogger.deprecateAction("Referencing property '" + name + "' that was declared with an 'is-' method with a Boolean type on " + getDisplayName())
                     .withAdvice("Access the property using " + metaMethod.getName() + "() explicitly, rename " + metaMethod.getName() + ", or change the return type to boolean.")

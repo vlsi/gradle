@@ -17,7 +17,6 @@
 package org.gradle.internal.classpath.transforms;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.ArrayUtils;
 import org.codehaus.groovy.runtime.callsite.CallSiteArray;
 import org.codehaus.groovy.vmplugin.v8.IndyInterface;
 import org.gradle.api.file.RelativePath;
@@ -51,6 +50,7 @@ import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Collection;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -417,7 +417,8 @@ public class InstrumentingClassTransform implements ClassTransform {
                     INSTRUMENTED_GROOVY_INDY_INTERFACE_BOOTSTRAP_METHOD_DESCRIPTOR,
                     false
                 );
-                bootstrapMethodArguments = ArrayUtils.add(bootstrapMethodArguments, interceptorFilter.name());
+                bootstrapMethodArguments = Arrays.copyOf(bootstrapMethodArguments, bootstrapMethodArguments.length + 1);
+                bootstrapMethodArguments[bootstrapMethodArguments.length - 1] = interceptorFilter.name();
                 super.visitInvokeDynamicInsn(name, descriptor, interceptor, bootstrapMethodArguments);
             } else if (isLambdaMetafactoryCallsite(bootstrapMethodHandle, bootstrapMethodArguments)) {
                 // The bootstrap method prototypes of LambdaMetafactory.metafactory and altMetafactory goes as follows:

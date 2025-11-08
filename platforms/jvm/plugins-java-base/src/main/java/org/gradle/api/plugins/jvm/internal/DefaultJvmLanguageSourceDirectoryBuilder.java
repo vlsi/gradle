@@ -15,7 +15,6 @@
  */
 package org.gradle.api.plugins.jvm.internal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.SourceDirectorySet;
@@ -33,6 +32,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.function.Function;
 
+import org.gradle.util.internal.TextUtil;
 public class DefaultJvmLanguageSourceDirectoryBuilder implements JvmLanguageSourceDirectoryBuilder {
     private final String name;
     private final ProjectInternal project;
@@ -64,7 +64,7 @@ public class DefaultJvmLanguageSourceDirectoryBuilder implements JvmLanguageSour
     @Override
     public JvmLanguageSourceDirectoryBuilder compiledWithJava(Action<? super JavaCompile> compilerConfiguration) {
         Function<DirectoryProperty, TaskProvider<? extends AbstractCompile>> t = sourceDirectory ->
-            project.getTasks().register("compile" + StringUtils.capitalize(name), JavaCompile.class, compileTask -> {
+            project.getTasks().register("compile" + TextUtil.capitalize(name), JavaCompile.class, compileTask -> {
                 compileTask.source(sourceDirectory);
                 compileTask.setClasspath(sourceSet.getCompileClasspath());
                 compilerConfiguration.execute(compileTask);

@@ -24,7 +24,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.internal.tasks.compile.incremental.compilerapi.CompilerApiData;
 import org.gradle.api.internal.tasks.compile.incremental.compilerapi.deps.DependentSetSerializer;
 import org.gradle.api.internal.tasks.compile.incremental.compilerapi.deps.DependentsSet;
@@ -46,6 +45,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * Provides information about a set of classes, e.g. a JAR or a whole classpath.
  * Contains a hash for every class contained in the set, so it can determine which classes have changed compared to another set.
@@ -244,7 +244,7 @@ public class ClassSetAnalysisData {
             return DependentsSet.dependencyToAll("module-info has changed");
         }
         if (className.endsWith(PACKAGE_INFO)) {
-            String packageName = className.equals(PACKAGE_INFO) ? null : StringUtils.removeEnd(className, "." + PACKAGE_INFO);
+            String packageName = className.equals(PACKAGE_INFO) ? null : TextUtil.removeEnd(className, "." + PACKAGE_INFO);
             return getDependentsOfPackage(packageName);
         }
         DependentsSet dependentsSet = dependents.get(className);

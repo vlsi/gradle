@@ -21,7 +21,6 @@ import groovy.util.IndentPrinter;
 import groovy.util.Node;
 import groovy.xml.XmlNodePrinter;
 import groovy.xml.XmlParser;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.XmlProvider;
@@ -374,7 +373,7 @@ public class XmlTransformer implements Transformer<String, String> {
             String str = sequence.toString();
             if (hasXmlDeclaration(str)) {
                 str = str.substring(str.indexOf("?>") + 2);
-                str = StringUtils.stripStart(str, null);
+                str = TextUtil.stripStart(str, null);
             }
             return str;
         }

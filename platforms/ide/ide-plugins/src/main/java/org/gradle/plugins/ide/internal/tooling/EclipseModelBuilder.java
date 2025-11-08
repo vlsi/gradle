@@ -17,7 +17,6 @@
 package org.gradle.plugins.ide.internal.tooling;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.internal.GradleInternal;
@@ -87,6 +86,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 public class EclipseModelBuilder implements ParameterizedToolingModelBuilder<EclipseRuntime> {
     private final GradleProjectBuilderInternal gradleProjectBuilder;
     private final EclipseModelAwareUniqueProjectNameProvider uniqueProjectNameProvider;
@@ -286,7 +286,7 @@ public class EclipseModelBuilder implements ParameterizedToolingModelBuilder<Ecl
             } else if (entry instanceof ProjectDependency) {
                 final ProjectDependency projectDependency = (ProjectDependency) entry;
                 // By removing the leading "/", this is no longer a "path" as defined by Eclipse
-                final String path = StringUtils.removeStart(projectDependency.getPath(), "/");
+                final String path = TextUtil.removeStart(projectDependency.getPath(), "/");
                 boolean isProjectOpen = projectOpenStatus.getOrDefault(path, true);
                 if (!isProjectOpen) {
                     final File source = projectDependency.getPublicationSourcePath() == null ? null : projectDependency.getPublicationSourcePath().getFile();

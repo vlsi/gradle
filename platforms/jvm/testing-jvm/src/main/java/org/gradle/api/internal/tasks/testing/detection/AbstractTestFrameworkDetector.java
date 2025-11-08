@@ -17,7 +17,6 @@
 package org.gradle.api.internal.tasks.testing.detection;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.internal.file.RelativeFile;
 import org.gradle.api.internal.tasks.testing.ClassTestDefinition;
 import org.gradle.api.internal.tasks.testing.TestClassProcessor;
@@ -38,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.gradle.util.internal.TextUtil;
 import static org.gradle.internal.FileUtils.hasExtension;
 
 public abstract class AbstractTestFrameworkDetector<T extends TestClassVisitor> implements TestFrameworkDetector {
@@ -62,7 +62,7 @@ public abstract class AbstractTestFrameworkDetector<T extends TestClassVisitor> 
 
     private File getSuperTestClassFile(String superClassName) {
         prepareClasspath();
-        if (StringUtils.isEmpty(superClassName)) {
+        if (TextUtil.isEmpty(superClassName)) {
             throw new IllegalArgumentException("superClassName is empty!");
         }
 

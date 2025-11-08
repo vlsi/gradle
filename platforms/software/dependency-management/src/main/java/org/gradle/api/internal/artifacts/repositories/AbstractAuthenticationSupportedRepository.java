@@ -15,7 +15,6 @@
  */
 package org.gradle.api.internal.artifacts.repositories;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.repositories.AuthenticationContainer;
 import org.gradle.api.artifacts.repositories.PasswordCredentials;
@@ -38,6 +37,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class AbstractAuthenticationSupportedRepository<T extends RepositoryDescriptor> extends AbstractResolutionAwareArtifactRepository<T> implements AuthenticationSupportedInternal {
     private final AuthenticationSupporter delegate;
@@ -152,6 +152,6 @@ public abstract class AbstractAuthenticationSupportedRepository<T extends Reposi
         } catch (MissingValueException e) {
             return false;
         }
-        return EqualsBuilder.reflectionEquals(toCheck, referenceCredentials);
+        return Objects.equals(toCheck, referenceCredentials);
     }
 }

@@ -18,10 +18,10 @@ package org.gradle.util;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.AbstractIterator;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Incubating;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.util.internal.GUtil;
+import org.gradle.util.internal.TextUtil;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.StringUtils.join;
 
 /**
  * Represents a path in Gradle.
@@ -63,7 +62,7 @@ public class Path implements Comparable<Path> {
     }
 
     private static Path parsePath(String path) {
-        String[] segments = StringUtils.split(path, SEPARATOR);
+        String[] segments = TextUtil.split(path, SEPARATOR);
         boolean absolute = path.startsWith(SEPARATOR);
         return new Path(segments, absolute);
     }
@@ -147,7 +146,7 @@ public class Path implements Comparable<Path> {
         if (absolute) {
             path.append(SEPARATOR);
         }
-        return path.append(join(segments, SEPARATOR)).toString();
+        return path.append(String.join(SEPARATOR, segments)).toString();
     }
 
     /**

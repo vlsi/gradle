@@ -18,7 +18,6 @@ package org.gradle.api.services.internal;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.BuildAdapter;
 import org.gradle.BuildResult;
 import org.gradle.api.Action;
@@ -54,6 +53,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.gradle.util.internal.TextUtil;
 import static org.gradle.api.services.internal.BuildServiceProvider.asBuildServiceProvider;
 import static org.gradle.internal.Cast.uncheckedCast;
 import static org.gradle.internal.Cast.uncheckedNonnullCast;
@@ -145,7 +145,7 @@ public class DefaultBuildServicesRegistry implements BuildServiceRegistryInterna
             ImmutableSet.<BuildServiceRegistration<?, ?>>builder().addAll(registrations.matching(it ->
                 type.isAssignableFrom(BuildServiceProvider.getProvidedType(it.getService()))
                     &&
-                (StringUtils.isEmpty(name) || it.getName().equals(name))
+                (TextUtil.isEmpty(name) || it.getName().equals(name))
             )).build()
         );
     }

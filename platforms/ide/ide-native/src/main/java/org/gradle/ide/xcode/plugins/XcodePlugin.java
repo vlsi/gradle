@@ -16,7 +16,6 @@
 
 package org.gradle.ide.xcode.plugins;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
@@ -76,6 +75,7 @@ import org.gradle.util.internal.CollectionUtils;
 import javax.inject.Inject;
 import java.io.File;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * A plugin for creating a XCode project for a gradle project.
  *
@@ -329,7 +329,7 @@ public abstract class XcodePlugin extends IdePlugin {
                 xcodeProject.getGroups().getHeaders().from(headers);
 
                 // TODO - should use the _install_ task for an executable
-                final String targetName = StringUtils.capitalize(component.getBaseName().get());
+                final String targetName = TextUtil.capitalize(component.getBaseName().get());
                 final XcodeTarget target = newTarget(targetName, targetName, toGradleCommand(project), getBridgeTaskPath(project), sources);
                 target.getDefaultConfigurationName().set(component.getDevelopmentBinary().map(devBinary -> toBuildConfigurationName(component, devBinary)));
                 component.getBinaries().whenElementFinalized(new Action<CppBinary>() {

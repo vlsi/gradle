@@ -16,11 +16,10 @@
 
 package org.gradle.internal.concurrent;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.gradle.concurrent.ParallelismConfiguration;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class DefaultParallelismConfiguration implements Serializable, ParallelismConfiguration {
 
@@ -74,12 +73,20 @@ public class DefaultParallelismConfiguration implements Serializable, Parallelis
 
     @Override
     public boolean equals(Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        DefaultParallelismConfiguration that = (DefaultParallelismConfiguration) obj;
+        return parallelProjectExecution == that.parallelProjectExecution &&
+            maxWorkerCount == that.maxWorkerCount;
     }
 
     @Override
     public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+        return Objects.hash(parallelProjectExecution, maxWorkerCount);
     }
 
     public static int getDefaultMaxWorkerCount() {

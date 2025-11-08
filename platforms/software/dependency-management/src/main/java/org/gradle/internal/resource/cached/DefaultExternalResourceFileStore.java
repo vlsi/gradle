@@ -15,7 +15,6 @@
  */
 package org.gradle.internal.resource.cached;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Namer;
 import org.gradle.api.internal.artifacts.ivyservice.ArtifactCacheMetadata;
 import org.gradle.api.internal.file.temp.TemporaryFileProvider;
@@ -28,6 +27,7 @@ import org.gradle.internal.service.scopes.ServiceScope;
 import javax.inject.Inject;
 import java.io.File;
 
+import org.gradle.util.internal.TextUtil;
 public class DefaultExternalResourceFileStore extends GroupedAndNamedUniqueFileStore<String> implements ExternalResourceFileStore {
 
     private static final int NUMBER_OF_GROUPING_DIRS = 1;
@@ -45,7 +45,7 @@ public class DefaultExternalResourceFileStore extends GroupedAndNamedUniqueFileS
         }
     };
 
-    private static final Namer<String> NAMER = s -> StringUtils.substringAfterLast(s, "/");
+    private static final Namer<String> NAMER = s -> TextUtil.substringAfterLast(s, "/");
 
     private DefaultExternalResourceFileStore(File baseDir, TemporaryFileProvider tmpProvider, FileAccessTimeJournal fileAccessTimeJournal, ChecksumService checksumService) {
         super(baseDir, tmpProvider, fileAccessTimeJournal, GROUPER, NAMER, checksumService);

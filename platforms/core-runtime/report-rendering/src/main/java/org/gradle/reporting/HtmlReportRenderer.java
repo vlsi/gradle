@@ -15,7 +15,6 @@
  */
 package org.gradle.reporting;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.internal.ErroringAction;
 import org.gradle.internal.IoActions;
 import org.gradle.internal.UncheckedException;
@@ -32,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.gradle.util.internal.TextUtil;
 public class HtmlReportRenderer {
     /**
      * Renders a multi-page HTML report from the given model, into the given directory.
@@ -99,8 +99,8 @@ public class HtmlReportRenderer {
             String urlString = source.toString();
             Resource resource = resources.get(urlString);
             if (resource == null) {
-                String name = StringUtils.substringAfterLast(source.getPath(), "/");
-                String type = StringUtils.substringAfterLast(source.getPath(), ".");
+                String name = TextUtil.substringAfterLast(source.getPath(), "/");
+                String type = TextUtil.substringAfterLast(source.getPath(), ".");
                 if (type.equalsIgnoreCase("png") || type.equalsIgnoreCase("gif")) {
                     type = "images";
                 }

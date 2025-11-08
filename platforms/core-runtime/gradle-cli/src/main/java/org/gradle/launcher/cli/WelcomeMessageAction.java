@@ -19,7 +19,6 @@ package org.gradle.launcher.cli;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.launcher.cli.WelcomeMessageConfiguration;
 import org.gradle.api.launcher.cli.WelcomeMessageDisplayMode;
@@ -37,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 
+import org.gradle.util.internal.TextUtil;
 public class WelcomeMessageAction implements Action<ExecutionListener> {
     public static final String WELCOME_MESSAGE_ENABLED_SYSTEM_PROPERTY = "org.gradle.internal.launcher.welcomeMessageEnabled";
 
@@ -78,10 +78,10 @@ public class WelcomeMessageAction implements Action<ExecutionListener> {
 
                 String featureList = readReleaseFeatures();
 
-                if (StringUtils.isNotBlank(featureList)) {
+                if (TextUtil.isNotBlank(featureList)) {
                     logger.lifecycle("");
                     logger.lifecycle("Here are the highlights of this release:");
-                    logger.lifecycle(StringUtils.stripEnd(featureList, " \n\r"));
+                    logger.lifecycle(TextUtil.stripEnd(featureList, " \n\r"));
                 }
 
                 if (!gradleVersion.isSnapshot()) {

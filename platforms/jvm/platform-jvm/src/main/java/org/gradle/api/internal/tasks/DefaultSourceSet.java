@@ -16,7 +16,6 @@
 package org.gradle.api.internal.tasks;
 
 import groovy.lang.Closure;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
@@ -29,6 +28,7 @@ import org.jspecify.annotations.Nullable;
 
 import javax.inject.Inject;
 
+import org.gradle.util.internal.TextUtil;
 import static org.gradle.api.internal.lambdas.SerializableLambdas.spec;
 import static org.gradle.util.internal.ConfigureUtil.configure;
 
@@ -148,7 +148,7 @@ public abstract class DefaultSourceSet implements SourceSet {
      * base name prefixed with this source set's name.</p>
      */
     public String configurationNameOf(String baseName) {
-        return StringUtils.uncapitalize(getTaskBaseName() + StringUtils.capitalize(baseName));
+        return TextUtil.uncapitalize(getTaskBaseName() + TextUtil.capitalize(baseName));
     }
 
     @Override

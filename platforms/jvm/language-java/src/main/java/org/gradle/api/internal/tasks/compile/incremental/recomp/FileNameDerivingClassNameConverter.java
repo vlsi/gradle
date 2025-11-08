@@ -15,12 +15,11 @@
  */
 package org.gradle.api.internal.tasks.compile.incremental.recomp;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * A converter which infers the class names from the file name.
  */
@@ -42,7 +41,7 @@ public class FileNameDerivingClassNameConverter implements SourceFileClassNameCo
 
         for (String fileExtension : fileExtensions) {
             if (sourceFileRelativePath.endsWith(fileExtension)) {
-                return Collections.singleton(StringUtils.removeEnd(sourceFileRelativePath.replace('/', '.'), fileExtension));
+                return Collections.singleton(TextUtil.removeEnd(sourceFileRelativePath.replace('/', '.'), fileExtension));
             }
         }
 

@@ -15,8 +15,6 @@
  */
 package org.gradle.internal.logging;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.gradle.api.logging.LogLevel;
 import org.gradle.api.logging.configuration.ConsoleOutput;
 import org.gradle.api.logging.configuration.LoggingConfiguration;
@@ -24,6 +22,7 @@ import org.gradle.api.logging.configuration.ShowStacktrace;
 import org.gradle.api.logging.configuration.WarningMode;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class DefaultLoggingConfiguration implements Serializable, LoggingConfiguration {
     private LogLevel logLevel = LogLevel.LIFECYCLE;
@@ -33,12 +32,22 @@ public class DefaultLoggingConfiguration implements Serializable, LoggingConfigu
 
     @Override
     public boolean equals(Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        DefaultLoggingConfiguration that = (DefaultLoggingConfiguration) obj;
+        return logLevel == that.logLevel &&
+            showStacktrace == that.showStacktrace &&
+            consoleOutput == that.consoleOutput &&
+            warningMode == that.warningMode;
     }
 
     @Override
     public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+        return Objects.hash(logLevel, showStacktrace, consoleOutput, warningMode);
     }
 
     @Override

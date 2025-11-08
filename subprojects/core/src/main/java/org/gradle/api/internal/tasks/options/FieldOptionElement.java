@@ -16,7 +16,6 @@
 
 package org.gradle.api.internal.tasks.options;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.FileSystemLocationProperty;
 import org.gradle.api.provider.HasMultipleValues;
@@ -32,6 +31,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
+import org.gradle.util.internal.TextUtil;
 public class FieldOptionElement {
 
     public static OptionElement create(Option option, Field field, OptionValueNotationParserFactory optionValueNotationParserFactory) {
@@ -76,7 +76,7 @@ public class FieldOptionElement {
 
     private static Method getSetter(Field field) {
         try {
-            String setterName = "set" + StringUtils.capitalize(field.getName());
+            String setterName = "set" + TextUtil.capitalize(field.getName());
             return field.getDeclaringClass().getMethod(setterName, field.getType());
         } catch (NoSuchMethodException e) {
             throw new OptionValidationException(String.format("No setter for Option annotated field '%s' in class '%s'.",
@@ -86,7 +86,7 @@ public class FieldOptionElement {
 
     private static Method getGetter(Field field) {
         try {
-            String getterName = "get" + StringUtils.capitalize(field.getName());
+            String getterName = "get" + TextUtil.capitalize(field.getName());
             return field.getDeclaringClass().getMethod(getterName);
         } catch (NoSuchMethodException e) {
             throw new OptionValidationException(String.format("No getter for Option annotated field '%s' in class '%s'.",

@@ -17,7 +17,6 @@
 package org.gradle.internal.component.resolution.failure;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.artifacts.ModuleIdentifier;
 import org.gradle.api.artifacts.component.ComponentSelector;
 import org.gradle.api.artifacts.result.ComponentSelectionCause;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * A static utility class used by {@link ResolutionFailureHandler} to assess and classify
  * component selection failures during graph construction.
@@ -99,7 +99,7 @@ public final class SelectionReasonAssessor {
         if (selectionDescriptor.hasCustomDescription()) {
             return selectionDescriptor.getDescription();
         } else {
-            return StringUtils.capitalize(selectionDescriptor.getDescription());
+            return TextUtil.capitalize(selectionDescriptor.getDescription());
         }
     }
 

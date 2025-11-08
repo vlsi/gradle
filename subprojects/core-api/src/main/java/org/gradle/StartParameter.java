@@ -18,8 +18,6 @@ package org.gradle;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.gradle.api.Incubating;
 import org.gradle.api.artifacts.verification.DependencyVerificationMode;
 import org.gradle.api.launcher.cli.WelcomeMessageConfiguration;
@@ -50,6 +48,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static java.util.Collections.emptyList;
@@ -276,12 +275,62 @@ public class StartParameter implements LoggingConfiguration, ParallelismConfigur
 
     @Override
     public boolean equals(Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        StartParameter that = (StartParameter) obj;
+        return buildProjectDependencies == that.buildProjectDependencies &&
+            dryRun == that.dryRun &&
+            rerunTasks == that.rerunTasks &&
+            taskGraph == that.taskGraph &&
+            profile == that.profile &&
+            continueOnFailure == that.continueOnFailure &&
+            offline == that.offline &&
+            refreshDependencies == that.refreshDependencies &&
+            buildCacheEnabled == that.buildCacheEnabled &&
+            buildCacheDebugLogging == that.buildCacheDebugLogging &&
+            configureOnDemand == that.configureOnDemand &&
+            continuous == that.continuous &&
+            buildScan == that.buildScan &&
+            noBuildScan == that.noBuildScan &&
+            writeDependencyLocks == that.writeDependencyLocks &&
+            refreshKeys == that.refreshKeys &&
+            exportKeys == that.exportKeys &&
+            Objects.equals(loggingConfiguration, that.loggingConfiguration) &&
+            Objects.equals(parallelismConfiguration, that.parallelismConfiguration) &&
+            Objects.equals(taskRequests, that.taskRequests) &&
+            Objects.equals(excludedTaskNames, that.excludedTaskNames) &&
+            Objects.equals(currentDir, that.currentDir) &&
+            Objects.equals(projectDir, that.projectDir) &&
+            Objects.equals(projectProperties, that.projectProperties) &&
+            Objects.equals(systemPropertiesArgs, that.systemPropertiesArgs) &&
+            Objects.equals(gradleUserHomeDir, that.gradleUserHomeDir) &&
+            Objects.equals(gradleHomeDir, that.gradleHomeDir) &&
+            Objects.equals(settingsFile, that.settingsFile) &&
+            Objects.equals(buildFile, that.buildFile) &&
+            Objects.equals(initScripts, that.initScripts) &&
+            Objects.equals(projectCacheDir, that.projectCacheDir) &&
+            Objects.equals(includedBuilds, that.includedBuilds) &&
+            Objects.equals(writeDependencyVerifications, that.writeDependencyVerifications) &&
+            Objects.equals(lockedDependenciesToUpdate, that.lockedDependenciesToUpdate) &&
+            verificationMode == that.verificationMode &&
+            Objects.equals(welcomeMessageConfiguration, that.welcomeMessageConfiguration);
     }
 
     @Override
     public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+        return Objects.hash(loggingConfiguration, parallelismConfiguration, taskRequests,
+            excludedTaskNames, buildProjectDependencies, currentDir, projectDir,
+            projectProperties, systemPropertiesArgs, gradleUserHomeDir, gradleHomeDir,
+            settingsFile, buildFile, initScripts, dryRun, rerunTasks, taskGraph, profile,
+            continueOnFailure, offline, projectCacheDir, refreshDependencies,
+            buildCacheEnabled, buildCacheDebugLogging, configureOnDemand, continuous,
+            includedBuilds, buildScan, noBuildScan, writeDependencyLocks,
+            writeDependencyVerifications, lockedDependenciesToUpdate, verificationMode,
+            refreshKeys, exportKeys, welcomeMessageConfiguration);
     }
 
     /**

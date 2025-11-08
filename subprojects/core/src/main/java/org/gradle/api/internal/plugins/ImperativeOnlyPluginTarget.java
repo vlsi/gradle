@@ -16,7 +16,6 @@
 
 package org.gradle.api.internal.plugins;
 
-import org.apache.commons.lang3.reflect.TypeUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.problems.ProblemId;
 import org.gradle.api.problems.Severity;
@@ -26,6 +25,7 @@ import org.gradle.configuration.ConfigurationTargetIdentifier;
 import org.gradle.internal.deprecation.Documentation;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import static org.gradle.internal.Cast.uncheckedCast;
@@ -60,7 +60,7 @@ public class ImperativeOnlyPluginTarget<T extends PluginAwareInternal> implement
     }
 
     private void maybeThrowOnTargetMismatch(Plugin<?> plugin) {
-        Type typeParameter = TypeUtils.getTypeArguments(plugin.getClass(), Plugin.class).get(Plugin.class.getTypeParameters()[0]);
+        Type typeParameter = getPluginTargetType(plugin.getClass());
         if (!(typeParameter instanceof Class<?>)) {
             return;
         }
@@ -79,6 +79,38 @@ public class ImperativeOnlyPluginTarget<T extends PluginAwareInternal> implement
                     .contextualLabel(message)
                     .documentedAt(Documentation.userManual("custom_plugins", "project_vs_settings_vs_init_plugins").toString());
             });
+    }
+
+    /**
+     * Gets the type argument of Plugin&lt;T&gt; from a plugin class.
+     */
+    private static Type getPluginTargetType(Class<?> pluginClass) {
+        Class<?> current = pluginClass;
+        while (current != null && current != Object.class) {
+            Type genericSuperclass = current.getGenericSuperclass();
+            if (genericSuperclass instanceof ParameterizedType) {
+                ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
+                if (parameterizedType.getRawType() instanceof Class<?> && Plugin.class.isAssignableFrom((Class<?>) parameterizedType.getRawType())) {
+                    Type[] typeArgs = parameterizedType.getActualTypeArguments();
+                    if (typeArgs.length > 0) {
+                        return typeArgs[0];
+                    }
+                }
+            }
+            for (Type iface : current.getGenericInterfaces()) {
+                if (iface instanceof ParameterizedType) {
+                    ParameterizedType parameterizedType = (ParameterizedType) iface;
+                    if (parameterizedType.getRawType().equals(Plugin.class)) {
+                        Type[] typeArgs = parameterizedType.getActualTypeArguments();
+                        if (typeArgs.length > 0) {
+                            return typeArgs[0];
+                        }
+                    }
+                }
+            }
+            current = current.getSuperclass();
+        }
+        return Object.class;
     }
 
     @Override

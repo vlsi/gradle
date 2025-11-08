@@ -16,7 +16,6 @@
 
 package org.gradle.internal.exceptions;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.GradleException;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -26,6 +25,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * <p>A styled exception is an exception which can be rendered to the console
  * with styled text (basically colors). The only requirement is to put tags
@@ -94,7 +94,7 @@ public class StyledException extends GradleException {
 
     private static StyledTextOutput.Style toStyle(String styleText) {
         try {
-            return StyledTextOutput.Style.valueOf(StringUtils.capitalize(styleText));
+            return StyledTextOutput.Style.valueOf(TextUtil.capitalize(styleText));
         } catch (IllegalArgumentException e) {
             LOGGER.debug("Style '{}' doesn't exist", styleText);
             return StyledTextOutput.Style.Normal;

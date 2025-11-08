@@ -17,7 +17,6 @@
 package org.gradle.performance.results.report;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.performance.results.CrossBuildPerformanceTestHistory;
 import org.gradle.performance.results.PerformanceReportScenario;
 import org.gradle.performance.results.PerformanceReportScenarioHistoryExecution;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.gradle.util.internal.TextUtil;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;

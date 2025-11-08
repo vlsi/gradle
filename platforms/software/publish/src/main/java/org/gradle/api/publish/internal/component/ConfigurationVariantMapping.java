@@ -15,7 +15,6 @@
  */
 package org.gradle.api.publish.internal.component;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.InvalidUserCodeException;
 import org.gradle.api.InvalidUserDataException;
@@ -39,6 +38,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.gradle.util.internal.TextUtil;
 public class ConfigurationVariantMapping {
     private final ConfigurationInternal outgoingConfiguration;
     private Action<? super ConfigurationVariantDetails> action;
@@ -78,7 +78,7 @@ public class ConfigurationVariantMapping {
         // Visit explicit sub-variants
         NamedDomainObjectContainer<ConfigurationVariant> subvariants = outgoingConfiguration.getOutgoing().getVariants();
         for (ConfigurationVariant subvariant : subvariants) {
-            String publishedVariantName = outgoingConfigurationName + StringUtils.capitalize(subvariant.getName());
+            String publishedVariantName = outgoingConfigurationName + TextUtil.capitalize(subvariant.getName());
             visitVariant(collector, seen, subvariant, publishedVariantName);
         }
     }

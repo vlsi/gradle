@@ -26,7 +26,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.SetMultimap;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.problems.internal.GradleCoreProblemGroup;
 import org.gradle.cache.Cache;
@@ -913,7 +912,7 @@ public class DefaultTypeAnnotationMetadataStore implements TypeAnnotationMetadat
             visitPropertyProblem(problem ->
                 problem
                     .forProperty(propertyName)
-                    .id(TextUtil.screamingSnakeToKebabCase(CONFLICTING_ANNOTATIONS), StringUtils.capitalize(category.getDisplayName()) + " has conflicting annotation", GradleCoreProblemGroup.validation().property())
+                    .id(TextUtil.screamingSnakeToKebabCase(CONFLICTING_ANNOTATIONS), TextUtil.capitalize(category.getDisplayName()) + " has conflicting annotation", GradleCoreProblemGroup.validation().property())
                     .contextualLabel(
                         String.format(
                             "has conflicting %s annotations %s: %s",
@@ -958,7 +957,7 @@ public class DefaultTypeAnnotationMetadataStore implements TypeAnnotationMetadat
             visitFunctionProblem(problem ->
                 problem
                     .forFunction(getMethod().getName())
-                    .id(TextUtil.screamingSnakeToKebabCase(CONFLICTING_ANNOTATIONS), StringUtils.capitalize(category.getDisplayName()) + " has conflicting annotation", GradleCoreProblemGroup.validation().type())
+                    .id(TextUtil.screamingSnakeToKebabCase(CONFLICTING_ANNOTATIONS), TextUtil.capitalize(category.getDisplayName()) + " has conflicting annotation", GradleCoreProblemGroup.validation().type())
                     .contextualLabel(
                         String.format(
                             "has conflicting %s annotations %s: %s",

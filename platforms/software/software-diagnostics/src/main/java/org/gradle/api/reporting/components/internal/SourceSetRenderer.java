@@ -16,7 +16,6 @@
 
 package org.gradle.api.reporting.components.internal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.diagnostics.internal.text.TextReportBuilder;
 import org.gradle.language.base.DependentSourceSet;
@@ -30,12 +29,13 @@ import java.io.File;
 import java.util.Comparator;
 import java.util.Set;
 
+import org.gradle.util.internal.TextUtil;
 class SourceSetRenderer extends ReportRenderer<LanguageSourceSet, TextReportBuilder> {
     static final Comparator<LanguageSourceSet> SORT_ORDER = (o1, o2) -> o1.getDisplayName().compareToIgnoreCase(o2.getDisplayName());
 
     @Override
     public void render(LanguageSourceSet sourceSet, TextReportBuilder builder) {
-        builder.heading(StringUtils.capitalize(sourceSet.getDisplayName()));
+        builder.heading(TextUtil.capitalize(sourceSet.getDisplayName()));
         renderSourceSetDirectories(sourceSet, builder);
         renderSourceSetDependencies(sourceSet, builder);
     }

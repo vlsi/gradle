@@ -17,7 +17,6 @@ package org.gradle.api.internal.catalog;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.GradleException;
 import org.gradle.api.artifacts.ExternalModuleDependencyBundle;
 import org.gradle.api.artifacts.MinimalExternalModuleDependency;
@@ -699,7 +698,7 @@ public class LibrariesSourceGenerator extends AbstractSourceGenerator {
             if (parent == null || wrapping) {
                 return "";
             }
-            return parent.getSimpleName() + StringUtils.capitalize(name);
+            return parent.getSimpleName() + TextUtil.capitalize(name);
         }
 
         private String getClassName() {
@@ -779,7 +778,7 @@ public class LibrariesSourceGenerator extends AbstractSourceGenerator {
         }
 
         public String getClassNameSuffix() {
-            return StringUtils.capitalize(name()) + "Accessors";
+            return TextUtil.capitalize(name()) + "Accessors";
         }
 
         public String getConstructorParams() {

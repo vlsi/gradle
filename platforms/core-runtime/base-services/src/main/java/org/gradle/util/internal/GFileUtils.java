@@ -16,8 +16,6 @@
 package org.gradle.util.internal;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.internal.IoActions;
 import org.gradle.internal.UncheckedException;
 import org.jspecify.annotations.Nullable;
@@ -86,7 +84,7 @@ public class GFileUtils {
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(file);
-            out.write(ArrayUtils.EMPTY_BYTE_ARRAY);
+            out.write(new byte[0]);
         } catch (IOException e) {
             throw new UncheckedIOException("Could not update timestamp for " + file, e);
         } finally {
@@ -319,6 +317,6 @@ public class GFileUtils {
     }
 
     private static List<String> splitAbsolutePathOf(File baseDir, String separatorChars) {
-        return Arrays.asList(StringUtils.split(baseDir.getAbsolutePath(), separatorChars));
+        return Arrays.asList(TextUtil.split(baseDir.getAbsolutePath(), separatorChars));
     }
 }

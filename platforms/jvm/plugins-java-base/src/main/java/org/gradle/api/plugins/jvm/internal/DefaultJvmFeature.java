@@ -15,7 +15,6 @@
  */
 package org.gradle.api.plugins.jvm.internal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.GradleException;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.artifacts.Configuration;
@@ -202,7 +201,7 @@ public class DefaultJvmFeature implements JvmFeatureInternal {
      */
     private String getConfigurationName(String suffix) {
         if (extendProductionCode) {
-            return name + StringUtils.capitalize(suffix);
+            return name + TextUtil.capitalize(suffix);
         } else {
             return ((DefaultSourceSet) sourceSet).configurationNameOf(suffix);
         }

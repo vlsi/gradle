@@ -16,15 +16,14 @@
 package org.gradle.api.internal.tasks.testing.filter;
 
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.gradle.util.internal.TextUtil;
 import static org.apache.commons.lang3.StringUtils.splitPreserveAllTokens;
-import static org.apache.commons.lang3.StringUtils.substringAfterLast;
+import static org.gradle.util.internal.TextUtil.substringAfterLast;
 
 /**
  * This class has two public APIs:

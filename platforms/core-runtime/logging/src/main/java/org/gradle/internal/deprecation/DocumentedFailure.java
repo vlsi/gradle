@@ -16,7 +16,6 @@
 
 package org.gradle.internal.deprecation;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.GradleException;
 import org.gradle.api.problems.DocLink;
 import org.gradle.api.problems.internal.InternalDocLink;
@@ -25,6 +24,7 @@ import org.jspecify.annotations.Nullable;
 
 import javax.annotation.CheckReturnValue;
 
+import org.gradle.util.internal.TextUtil;
 public class DocumentedFailure {
     public static Builder builder() {
         return new Builder();
@@ -80,7 +80,7 @@ public class DocumentedFailure {
         }
 
         private static void append(StringBuilder outputBuilder, @Nullable String message) {
-            if (!StringUtils.isEmpty(message)) {
+            if (!TextUtil.isEmpty(message)) {
                 outputBuilder.append(" ").append(message);
             }
         }

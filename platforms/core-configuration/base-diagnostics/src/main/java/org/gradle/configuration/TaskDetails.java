@@ -16,7 +16,6 @@
 
 package org.gradle.configuration;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * A configuration-cache friendly view of a {@link Task} that only projects information
  * that is relevant for the {@link Help} task.
@@ -138,7 +138,7 @@ class TaskDetails {
 
     public static TaskDetails from(Task task, OptionReader optionReader) {
         String path = task.getPath();
-        int projectDepth = StringUtils.countMatches(path, Project.PATH_SEPARATOR);
+        int projectDepth = TextUtil.countMatches(path, Project.PATH_SEPARATOR);
         List<OptionDetails> options = TaskOptionsGenerator.generate(task, optionReader).getAll().stream().map(OptionDetails::from).collect(Collectors.toList());
         Class<?> declaredTaskType = getDeclaredTaskType(task);
         String taskType = declaredTaskType.getName();

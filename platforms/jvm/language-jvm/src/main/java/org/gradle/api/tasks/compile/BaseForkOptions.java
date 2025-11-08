@@ -15,7 +15,6 @@
  */
 package org.gradle.api.tasks.compile;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
@@ -28,6 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * Fork options for compilation. Only take effect if {@code fork}
  * is {@code true}.
@@ -97,7 +97,7 @@ public class BaseForkOptions implements Serializable {
     public void setJvmArgs(@Nullable List<String> jvmArgs) {
         this.jvmArgs = jvmArgs == null ? null : jvmArgs.stream()
             .filter(Objects::nonNull)
-            .filter(string -> !StringUtils.isBlank(string))
+            .filter(string -> !TextUtil.isBlank(string))
             .collect(Collectors.toList());
     }
 }

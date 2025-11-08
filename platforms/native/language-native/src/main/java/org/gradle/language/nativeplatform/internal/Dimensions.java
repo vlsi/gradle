@@ -16,7 +16,6 @@
 
 package org.gradle.language.nativeplatform.internal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.attributes.AttributeContainer;
@@ -46,6 +45,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 import static org.gradle.language.cpp.CppBinary.DEBUGGABLE_ATTRIBUTE;
 import static org.gradle.language.cpp.CppBinary.LINKAGE_ATTRIBUTE;
 import static org.gradle.language.cpp.CppBinary.OPTIMIZED_ATTRIBUTE;
@@ -59,7 +59,7 @@ public class Dimensions {
 
     public static String createDimensionSuffix(String dimensionValue, Collection<?> multivalueProperty) {
         if (isDimensionVisible(multivalueProperty)) {
-            return StringUtils.capitalize(dimensionValue.toLowerCase(Locale.ROOT));
+            return TextUtil.capitalize(dimensionValue.toLowerCase(Locale.ROOT));
         }
         return "";
     }
@@ -138,7 +138,7 @@ public class Dimensions {
                     variantNameToken.add(createDimensionSuffix(targetMachine.getOperatingSystemFamily(), targetMachinesToOperatingSystems(targetMachines)));
                     variantNameToken.add(createDimensionSuffix(targetMachine.getArchitecture(), targetMachinesToArchitectures(targetMachines)));
 
-                    String variantName = StringUtils.uncapitalize(String.join("", variantNameToken));
+                    String variantName = TextUtil.uncapitalize(String.join("", variantNameToken));
 
                     AttributeContainer runtimeAttributes = attributesFactory.mutable();
                     runtimeAttributes.attribute(Usage.USAGE_ATTRIBUTE, runtimeUsage);
@@ -176,7 +176,7 @@ public class Dimensions {
                 variantNameToken.add(createDimensionSuffix(targetMachine.getOperatingSystemFamily(), targetMachinesToOperatingSystems(targetMachines)));
                 variantNameToken.add(createDimensionSuffix(targetMachine.getArchitecture(), targetMachinesToArchitectures(targetMachines)));
 
-                String variantName = StringUtils.uncapitalize(String.join("", variantNameToken));
+                String variantName = TextUtil.uncapitalize(String.join("", variantNameToken));
 
                 AttributeContainer runtimeAttributes = attributesFactory.mutable();
                 runtimeAttributes.attribute(Usage.USAGE_ATTRIBUTE, runtimeUsage);

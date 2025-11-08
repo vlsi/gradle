@@ -16,12 +16,12 @@
 
 package org.gradle.internal.resource.transport.http;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
+import org.gradle.util.internal.TextUtil;
 public class JavaSystemPropertiesHttpTimeoutSettings implements HttpTimeoutSettings {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaSystemPropertiesHttpTimeoutSettings.class);
@@ -65,7 +65,7 @@ public class JavaSystemPropertiesHttpTimeoutSettings implements HttpTimeoutSetti
     private int initTimeout(String propertyName, int defaultValue) {
         String systemProperty = System.getProperty(propertyName);
 
-        if (!StringUtils.isBlank(systemProperty)) {
+        if (!TextUtil.isBlank(systemProperty)) {
             try {
                 return Integer.parseInt(systemProperty);
             } catch (NumberFormatException e) {

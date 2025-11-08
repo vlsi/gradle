@@ -17,12 +17,10 @@
 package org.gradle.internal.logging.events;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.List;
 import java.util.Locale;
 
+import org.gradle.util.internal.TextUtil;
 public class BooleanQuestionPromptEvent extends PromptOutputEvent {
     private static final List<String> LENIENT_YES_NO_CHOICES = ImmutableList.of("yes", "no", "y", "n");
     private final String question;
@@ -42,7 +40,7 @@ public class BooleanQuestionPromptEvent extends PromptOutputEvent {
         String defaultString = defaultValue ? "yes" : "no";
         builder.append(defaultString);
         builder.append(") [");
-        builder.append(StringUtils.join(YesNoQuestionPromptEvent.YES_NO_CHOICES, ", "));
+        builder.append(TextUtil.join(YesNoQuestionPromptEvent.YES_NO_CHOICES, ", "));
         builder.append("] ");
         return builder.toString();
     }
@@ -62,9 +60,17 @@ public class BooleanQuestionPromptEvent extends PromptOutputEvent {
         }
         String trimmed = text.toLowerCase(Locale.US).trim();
         if (LENIENT_YES_NO_CHOICES.contains(trimmed)) {
-            return PromptResult.response(BooleanUtils.toBoolean(trimmed));
+            return PromptResult.response(toBoolean(trimmed));
         }
         String defaultString = defaultValue ? "yes" : "no";
         return PromptResult.newPrompt("Please enter 'yes' or 'no' (default: '" + defaultString + "'): ");
+    }
+
+    private static boolean toBoolean(String str) {
+        if (str == null) {
+            return false;
+        }
+        String lower = str.toLowerCase();
+        return "true".equals(lower) || "yes".equals(lower) || "y".equals(lower) || "on".equals(lower);
     }
 }

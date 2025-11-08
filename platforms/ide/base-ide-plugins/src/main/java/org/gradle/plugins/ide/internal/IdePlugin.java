@@ -16,7 +16,6 @@
 package org.gradle.plugins.ide.internal;
 
 import com.google.common.base.Optional;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -36,6 +35,7 @@ import org.gradle.plugins.ide.IdeWorkspace;
 import org.gradle.process.ExecOperations;
 
 import javax.inject.Inject;
+import org.gradle.util.internal.TextUtil;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -107,7 +107,7 @@ public abstract class IdePlugin implements Plugin<Project> {
     }
 
     protected String cleanName(String taskName) {
-        return String.format("clean%s", StringUtils.capitalize(taskName));
+        return String.format("clean%s", TextUtil.capitalize(taskName));
     }
 
     public void addWorker(Task worker) {
@@ -186,7 +186,7 @@ public abstract class IdePlugin implements Plugin<Project> {
             }
         });
 
-        project.getTasks().register("open" + StringUtils.capitalize(getLifecycleTaskName()), new Action<Task>() {
+        project.getTasks().register("open" + TextUtil.capitalize(getLifecycleTaskName()), new Action<Task>() {
             @Override
             public void execute(Task openTask) {
                 openTask.dependsOn(lifecycleTask);

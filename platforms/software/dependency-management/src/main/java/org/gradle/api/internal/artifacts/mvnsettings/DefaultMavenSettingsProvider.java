@@ -15,7 +15,6 @@
  */
 package org.gradle.api.internal.artifacts.mvnsettings;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.building.DefaultSettingsBuilder;
 import org.apache.maven.settings.building.DefaultSettingsBuilderFactory;
@@ -29,6 +28,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.Map;
 
+import org.gradle.util.internal.TextUtil;
 public class DefaultMavenSettingsProvider implements MavenSettingsProvider {
 
     private final MavenFileLocations mavenFileLocations;
@@ -77,7 +77,7 @@ public class DefaultMavenSettingsProvider implements MavenSettingsProvider {
         SettingsReader settingsReader = new DefaultSettingsReader();
         try {
             String localRepository = settingsReader.read(settingsFile, options).getLocalRepository();
-            return StringUtils.isEmpty(localRepository) ? null : localRepository;
+            return TextUtil.isEmpty(localRepository) ? null : localRepository;
         } catch (Exception parseException) {
             throw new CannotLocateLocalMavenRepositoryException("Unable to parse local Maven settings: " + settingsFile.getAbsolutePath(), parseException);
         }

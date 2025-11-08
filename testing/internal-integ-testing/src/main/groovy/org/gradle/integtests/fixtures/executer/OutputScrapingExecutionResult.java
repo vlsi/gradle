@@ -16,7 +16,6 @@
 package org.gradle.integtests.fixtures.executer;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.integtests.fixtures.logging.GroupedOutputFixture;
 import org.gradle.internal.Pair;
 import org.gradle.internal.featurelifecycle.LoggingDeprecatedFeatureHandler;
@@ -39,6 +38,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import org.gradle.util.internal.TextUtil;
 public class OutputScrapingExecutionResult implements ExecutionResult {
     // This monster is to find lines in our logs that look like stack traces
     // We want to match lines that contain just packages and classes:

@@ -20,8 +20,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.gradle.api.GradleException;
 import org.gradle.internal.Cast;
 import org.gradle.internal.UncheckedException;
@@ -33,6 +31,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class WeaklyTypeReferencingMethod<T, R> {
 
@@ -128,12 +127,7 @@ public class WeaklyTypeReferencingMethod<T, R> {
         }
         // there's a risk, for some methods, that the hash is always
         // recomputed but it won't be worse than before
-        cachedHashCode = new HashCodeBuilder()
-                .append(declaringType)
-                .append(returnType)
-                .append(name)
-                .append(paramTypes)
-                .toHashCode();
+        cachedHashCode = Objects.hash(declaringType, returnType, name, paramTypes);
         return cachedHashCode;
     }
 
@@ -148,12 +142,10 @@ public class WeaklyTypeReferencingMethod<T, R> {
 
         WeaklyTypeReferencingMethod<?, ?> other = Cast.uncheckedCast(obj);
 
-        return new EqualsBuilder()
-                .append(declaringType, other.declaringType)
-                .append(returnType, other.returnType)
-                .append(name, other.name)
-                .append(paramTypes, other.paramTypes)
-                .isEquals();
+        return Objects.equals(declaringType, other.declaringType) &&
+            Objects.equals(returnType, other.returnType) &&
+            Objects.equals(name, other.name) &&
+            Objects.equals(paramTypes, other.paramTypes);
     }
 
     @Override

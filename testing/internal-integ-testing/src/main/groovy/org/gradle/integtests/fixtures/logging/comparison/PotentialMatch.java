@@ -18,13 +18,13 @@ package org.gradle.integtests.fixtures.logging.comparison;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.ComparisonFailure;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.gradle.util.internal.TextUtil;
 public class PotentialMatch {
     @VisibleForTesting
     static final String HEADER = "Potential Match (actual lines):";
@@ -89,28 +89,28 @@ public class PotentialMatch {
     }
 
     private String buildPrefix(int expectedIdx, int actualIdx, int padding) {
-        String lineNum = StringUtils.leftPad(String.valueOf(toLineNumber(actualIdx)), padding, ' ');
+        String lineNum = TextUtil.leftPad(String.valueOf(toLineNumber(actualIdx)), padding, ' ');
 
         StringBuilder result = new StringBuilder().append(' ');
         if (isBeginningOfMatch(actualIdx)) {
             result.append(BEGIN_MATCH_INDICATOR).append(' ');
         } else {
-            result.append(StringUtils.repeat(" ", BEGIN_MATCH_INDICATOR.length() + 1));
+            result.append(TextUtil.repeat(" ", BEGIN_MATCH_INDICATOR.length() + 1));
         }
 
         if (isMismatch(expectedIdx)) {
             result.append(MISMATCHED_LINE_INDICATOR).append(' ');
         } else {
-            result.append(StringUtils.repeat(" ", MISMATCHED_LINE_INDICATOR.length() + 1));
+            result.append(TextUtil.repeat(" ", MISMATCHED_LINE_INDICATOR.length() + 1));
         }
 
         if (isEndOfMatch(actualIdx)) {
             result.append(END_MATCH_INDICATOR).append(' ');
         } else {
-            result.append(StringUtils.repeat(" ", END_MATCH_INDICATOR.length() + 1));
+            result.append(TextUtil.repeat(" ", END_MATCH_INDICATOR.length() + 1));
         }
 
-        result.append(StringUtils.leftPad(lineNum, padding, ' ')).append(": ");
+        result.append(TextUtil.leftPad(lineNum, padding, ' ')).append(": ");
         return result.toString();
     }
 
@@ -122,7 +122,7 @@ public class PotentialMatch {
     static String buildComparison(String expectedLine, String actualLine, int padding) {
         int comparisonPadding = BEGIN_MATCH_INDICATOR.length() + MISMATCHED_LINE_INDICATOR.length() + END_MATCH_INDICATOR.length() + 4 + padding;
 
-        return StringUtils.leftPad(new ComparisonFailure("", expectedLine, actualLine).getMessage(), comparisonPadding, ' ');
+        return TextUtil.leftPad(new ComparisonFailure("", expectedLine, actualLine).getMessage(), comparisonPadding, ' ');
     }
 
     private int calcLineNumberPadding(int startLineNum, int endLineNum) {

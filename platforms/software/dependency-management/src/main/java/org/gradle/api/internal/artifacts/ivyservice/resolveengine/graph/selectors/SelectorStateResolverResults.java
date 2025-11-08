@@ -15,7 +15,6 @@
  */
 package org.gradle.api.internal.artifacts.ivyservice.resolveengine.graph.selectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.internal.artifacts.ResolvedVersionConstraint;
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.LatestVersionSelector;
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.Version;
@@ -32,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import org.gradle.util.internal.TextUtil;
 class SelectorStateResolverResults {
     private final Comparator<Version> versionComparator;
     private final VersionParser versionParser;
@@ -207,7 +207,7 @@ class SelectorStateResolverResults {
             }
 
             String version = candidate.getModuleVersionId().getVersion();
-            if (StringUtils.isEmpty(version)) {
+            if (TextUtil.isEmpty(version)) {
                 return false;
             }
             return versionSelector.accept(version);

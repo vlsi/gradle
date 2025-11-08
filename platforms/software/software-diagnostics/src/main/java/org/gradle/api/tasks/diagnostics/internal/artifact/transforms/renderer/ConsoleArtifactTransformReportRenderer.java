@@ -17,7 +17,6 @@
 package org.gradle.api.tasks.diagnostics.internal.artifact.transforms.renderer;
 
 import com.google.common.collect.Streams;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.internal.DocumentationRegistry;
 import org.gradle.api.tasks.diagnostics.internal.artifact.transforms.model.ArtifactTransformReportModel;
 import org.gradle.api.tasks.diagnostics.internal.artifact.transforms.model.ReportArtifactTransform;
@@ -26,6 +25,7 @@ import org.gradle.internal.logging.text.StyledTextOutput;
 
 import java.util.List;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * A type of {@link AbstractArtifactTransformReportRenderer} that can be used to render a {@link ArtifactTransformReportModel}
  * to the console with richly formatted output.
@@ -103,7 +103,7 @@ public final class ConsoleArtifactTransformReportRenderer extends AbstractArtifa
 
     private void writeAttribute(Integer max, String name, Object value) {
         indent(true);
-        valuePair(StringUtils.rightPad(name, max), value.toString());
+        valuePair(TextUtil.rightPad(name, max), value.toString());
         newLine();
     }
 
@@ -149,7 +149,7 @@ public final class ConsoleArtifactTransformReportRenderer extends AbstractArtifa
     }
 
     private void indent(boolean bullet) {
-        output.text(StringUtils.repeat("    ", depth));
+        output.text(TextUtil.repeat("    ", depth));
         if (depth > 0 && bullet) {
             output.withStyle(StyledTextOutput.Style.Normal).text("- ");
         }

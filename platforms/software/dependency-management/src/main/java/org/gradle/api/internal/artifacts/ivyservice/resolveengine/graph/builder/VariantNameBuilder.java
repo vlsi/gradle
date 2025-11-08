@@ -15,7 +15,6 @@
  */
 package org.gradle.api.internal.artifacts.ivyservice.resolveengine.graph.builder;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.internal.Describables;
 import org.gradle.internal.DisplayName;
 import org.jspecify.annotations.Nullable;
@@ -24,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * A memory-efficient builder for variant names.
  *
@@ -65,7 +65,7 @@ public class VariantNameBuilder {
 
         @Override
         public String getCapitalizedDisplayName() {
-            return StringUtils.capitalize(getDisplayName());
+            return TextUtil.capitalize(getDisplayName());
         }
 
         @Override

@@ -18,7 +18,6 @@ package gradlebuild.docs.dsl.source;
 import gradlebuild.docs.dsl.source.model.ClassMetaData;
 import gradlebuild.docs.dsl.source.model.TypeMetaData;
 import gradlebuild.docs.model.ClassMetaDataRepository;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.internal.UncheckedException;
 
@@ -27,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * Resolves partial type names into fully qualified type names.
  */
@@ -101,7 +101,7 @@ public class TypeNameResolver {
 
         String outerClassName = classMetaData.getOuterClassName();
         while (outerClassName != null) {
-            if (name.equals(StringUtils.substringAfterLast(outerClassName, "."))) {
+            if (name.equals(TextUtil.substringAfterLast(outerClassName, "."))) {
                 return outerClassName;
             }
             ClassMetaData outerClass = metaDataRepository.get(outerClassName);
@@ -117,9 +117,9 @@ public class TypeNameResolver {
         }
 
         for (String importedClass : classMetaData.getImports()) {
-            String baseName = StringUtils.substringAfterLast(importedClass, ".");
+            String baseName = TextUtil.substringAfterLast(importedClass, ".");
             if (baseName.equals("*")) {
-                candidateClassName = StringUtils.substringBeforeLast(importedClass, ".") + "." + name;
+                candidateClassName = TextUtil.substringBeforeLast(importedClass, ".") + "." + name;
                 if (metaDataRepository.find(candidateClassName) != null) {
                     return candidateClassName;
                 }

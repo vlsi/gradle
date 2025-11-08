@@ -16,11 +16,11 @@
 package org.gradle.platform.base.internal;
 
 import com.google.common.base.Objects;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.gradle.util.Path;
 import org.jspecify.annotations.Nullable;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * An identifier for a component that is built as part of the current build.
  */
@@ -66,7 +66,7 @@ public class DefaultComponentSpecIdentifier implements ComponentSpecIdentifier {
 
     @Override
     public String getProjectScopedName() {
-        return parent == null ? name : parent.getProjectScopedName() + StringUtils.capitalize(name);
+        return parent == null ? name : parent.getProjectScopedName() + TextUtil.capitalize(name);
     }
 
     @Override

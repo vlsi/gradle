@@ -15,10 +15,10 @@
  */
 package org.gradle.api.internal.tasks.testing;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.internal.tasks.testing.filter.TestSelectionMatcher;
 import org.jspecify.annotations.NullMarked;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * A test definition which denotes a single test class.
  */
@@ -27,7 +27,7 @@ public final class ClassTestDefinition implements TestDefinition {
     private final String testClassName;
 
     public ClassTestDefinition(String testClassName) {
-        if (StringUtils.isEmpty(testClassName)) {
+        if (TextUtil.isEmpty(testClassName)) {
             throw new IllegalArgumentException("testClassName is empty!");
         }
 

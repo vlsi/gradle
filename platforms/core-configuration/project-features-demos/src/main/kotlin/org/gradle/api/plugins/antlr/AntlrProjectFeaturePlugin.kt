@@ -16,7 +16,6 @@
 
 package org.gradle.api.plugins.antlr
 
-import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.plugins.BindsProjectFeature
@@ -55,7 +54,7 @@ class AntlrProjectFeaturePlugin : Plugin<Project> {
                 // Add the generated antlr sources to the java sources
                 parentModel.inputSources.srcDir(outputDirectory)
 
-                project.tasks.register("generate" + StringUtils.capitalize(definition.name) + "AntlrSources", AntlrTask::class.java) { antlrTask ->
+                project.tasks.register("generate" + TextUtil.capitalize(definition.name) + "AntlrSources", AntlrTask::class.java) { antlrTask ->
                     antlrTask.group = LifecycleBasePlugin.BUILD_GROUP
                     antlrTask.description = "Generates sources from the " + definition.grammarSources.name + " Antlr grammars."
                     antlrTask.source = definition.grammarSources

@@ -17,10 +17,10 @@
 package org.gradle.internal.reflect;
 
 import com.google.common.base.Equivalence;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Objects;
 
 @SuppressWarnings("NullableProblems")
 public class Methods {
@@ -42,10 +42,7 @@ public class Methods {
 
         @Override
         protected int doHash(Method method) {
-            return new HashCodeBuilder()
-                .append(method.getName())
-                .append(method.getParameterTypes())
-                .toHashCode();
+            return Objects.hash(method.getName(), Arrays.hashCode(method.getParameterTypes()));
         }
     };
 
@@ -64,11 +61,8 @@ public class Methods {
 
         @Override
         protected int doHash(Method method) {
-            return new HashCodeBuilder()
-                .append(method.getName())
-                .append(method.getParameterTypes())
-                .append(method.getReturnType())
-                .toHashCode();
+            return Objects.hash(method.getName(), Arrays.hashCode(method.getParameterTypes()),
+                method.getReturnType());
         }
     };
 }

@@ -17,7 +17,6 @@
 package org.gradle.api.internal.tasks.testing.report.generic;
 
 import com.google.common.collect.Iterables;
-import org.apache.commons.lang3.stream.Streams;
 import org.gradle.api.internal.tasks.testing.report.generic.MetadataRendererRegistry.MetadataRenderer;
 import org.gradle.api.internal.tasks.testing.results.serializable.TestOutputReader;
 import org.gradle.api.internal.tasks.testing.results.serializable.SerializableFailure;
@@ -40,6 +39,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.gradle.reporting.HtmlWriterTools.addClipboardCopyButton;
 
@@ -229,7 +229,7 @@ public abstract class PerRootTabRenderer extends ReportRenderer<TestTreeModel, S
             htmlWriter.endElement();
             htmlWriter.endElement();
 
-            List<TestTreeModel> sortedByName = Streams.of(getCurrentModel().getChildrenOf(rootIndex))
+            List<TestTreeModel> sortedByName = StreamSupport.stream(getCurrentModel().getChildrenOf(rootIndex).spliterator(), false)
                 .sorted(Comparator.comparing(TestTreeModel::getPath))
                 .collect(Collectors.toList());
 

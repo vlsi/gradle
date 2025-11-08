@@ -15,7 +15,6 @@
  */
 package gradlebuild.docs.dsl.docbook;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.GradleException;
 import gradlebuild.docs.dsl.source.model.ClassMetaData;
 import gradlebuild.docs.dsl.source.model.MethodMetaData;
@@ -25,6 +24,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
+import org.gradle.util.internal.TextUtil;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -109,7 +109,7 @@ public class JavadocConverter {
         Matcher matcher = ACCESSOR_COMMENT_PATTERN.matcher(comment.getData());
         if (matcher.lookingAt()) {
             String theOrWhether = matcher.group(1).toLowerCase(Locale.US);
-            comment.setData(StringUtils.capitalize(theOrWhether) + " " + comment.getData().substring(matcher.end()));
+            comment.setData(TextUtil.capitalize(theOrWhether) + " " + comment.getData().substring(matcher.end()));
         }
     }
 

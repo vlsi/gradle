@@ -19,7 +19,6 @@ package org.gradle.util.internal;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.internal.SystemProperties;
 import org.gradle.internal.UncheckedException;
 import org.jspecify.annotations.Nullable;
@@ -357,7 +356,17 @@ public class TextUtil {
     }
 
     public static String screamingSnakeToKebabCase(String text) {
-        return StringUtils.replace(text.toLowerCase(Locale.ENGLISH), "_", "-");
+        return replace(text.toLowerCase(Locale.ENGLISH), "_", "-");
+    }
+
+    /**
+     * Replaces all occurrences of a String within another String.
+     */
+    public static String replace(String text, String searchString, String replacement) {
+        if (text == null || text.isEmpty() || searchString == null || searchString.isEmpty()) {
+            return text;
+        }
+        return text.replace(searchString, replacement);
     }
 
     public static String removeTrailing(String originalString, String suffix) {
@@ -365,5 +374,486 @@ public class TextUtil {
             return originalString.substring(0, originalString.length() - suffix.length());
         }
         return originalString;
+    }
+
+    /**
+     * Checks if a CharSequence is empty ("") or null.
+     */
+    public static boolean isEmpty(@Nullable CharSequence cs) {
+        return cs == null || cs.length() == 0;
+    }
+
+    /**
+     * Checks if a CharSequence is not empty ("") and not null.
+     */
+    public static boolean isNotEmpty(@Nullable CharSequence cs) {
+        return !isEmpty(cs);
+    }
+
+    /**
+     * Checks if a CharSequence is not empty (""), not null and not whitespace only.
+     */
+    public static boolean isNotBlank(@Nullable CharSequence cs) {
+        return !isBlank(cs == null ? null : cs.toString());
+    }
+
+    /**
+     * Uncapitalizes a String, changing the first character to lower case.
+     */
+    public static String uncapitalize(String str) {
+        if (str == null || str.length() == 0) {
+            return str;
+        }
+        return Character.toLowerCase(str.charAt(0)) + str.substring(1);
+    }
+
+    /**
+     * Gets a substring after the last occurrence of a separator.
+     */
+    @Nullable
+    public static String substringAfterLast(@Nullable String str, String separator) {
+        if (isEmpty(str)) {
+            return str;
+        }
+        if (isEmpty(separator)) {
+            return "";
+        }
+        int pos = str.lastIndexOf(separator);
+        if (pos == -1 || pos == str.length() - separator.length()) {
+            return "";
+        }
+        return str.substring(pos + separator.length());
+    }
+
+    /**
+     * Gets a substring before the last occurrence of a separator.
+     */
+    @Nullable
+    public static String substringBeforeLast(@Nullable String str, String separator) {
+        if (isEmpty(str) || isEmpty(separator)) {
+            return str;
+        }
+        int pos = str.lastIndexOf(separator);
+        if (pos == -1) {
+            return str;
+        }
+        return str.substring(0, pos);
+    }
+
+    /**
+     * Gets the substring before the first occurrence of a separator.
+     */
+    @Nullable
+    public static String substringBefore(@Nullable String str, String separator) {
+        if (isEmpty(str) || separator == null) {
+            return str;
+        }
+        if (separator.isEmpty()) {
+            return "";
+        }
+        int pos = str.indexOf(separator);
+        if (pos == -1) {
+            return str;
+        }
+        return str.substring(0, pos);
+    }
+
+    /**
+     * Gets the substring after the first occurrence of a separator.
+     */
+    @Nullable
+    public static String substringAfter(@Nullable String str, String separator) {
+        if (isEmpty(str)) {
+            return str;
+        }
+        if (separator == null) {
+            return "";
+        }
+        int pos = str.indexOf(separator);
+        if (pos == -1) {
+            return "";
+        }
+        return str.substring(pos + separator.length());
+    }
+
+    /**
+     * Normalizes whitespace by trimming and replacing sequences of whitespace with a single space.
+     */
+    public static String normalizeSpace(@Nullable String str) {
+        if (isEmpty(str)) {
+            return str;
+        }
+        return str.trim().replaceAll("\\s+", " ");
+    }
+
+    /**
+     * Counts how many times the substring appears in the larger string.
+     */
+    public static int countMatches(@Nullable CharSequence str, CharSequence sub) {
+        if (isEmpty(str) || isEmpty(sub)) {
+            return 0;
+        }
+        int count = 0;
+        int idx = 0;
+        String strStr = str.toString();
+        String subStr = sub.toString();
+        while ((idx = strStr.indexOf(subStr, idx)) != -1) {
+            count++;
+            idx += subStr.length();
+        }
+        return count;
+    }
+
+    /**
+     * Splits a String by a character, trimming each element and omitting empty strings.
+     */
+    public static String[] split(@Nullable String str, char separatorChar) {
+        if (str == null) {
+            return null;
+        }
+        if (str.isEmpty()) {
+            return new String[0];
+        }
+        return str.split(Pattern.quote(String.valueOf(separatorChar)));
+    }
+
+    /**
+     * Splits a String by a separator string.
+     */
+    public static String[] split(@Nullable String str, String separatorChars) {
+        if (str == null) {
+            return null;
+        }
+        if (str.isEmpty()) {
+            return new String[0];
+        }
+        if (separatorChars == null) {
+            return new String[]{str};
+        }
+        if (separatorChars.length() == 1) {
+            return split(str, separatorChars.charAt(0));
+        }
+        // Build a regex pattern that treats each character as a separator
+        StringBuilder pattern = new StringBuilder("[");
+        for (char c : separatorChars.toCharArray()) {
+            pattern.append(Pattern.quote(String.valueOf(c)));
+        }
+        pattern.append("]+");
+        String[] parts = str.split(pattern.toString());
+        // Filter out empty strings
+        return Arrays.stream(parts).filter(s -> !s.isEmpty()).toArray(String[]::new);
+    }
+
+    /**
+     * Left pad a String with spaces.
+     */
+    public static String leftPad(String str, int size) {
+        return leftPad(str, size, ' ');
+    }
+
+    /**
+     * Left pad a String with a specified character.
+     */
+    public static String leftPad(String str, int size, char padChar) {
+        if (str == null) {
+            return null;
+        }
+        int pads = size - str.length();
+        if (pads <= 0) {
+            return str;
+        }
+        return repeat(padChar, pads) + str;
+    }
+
+    /**
+     * Right pad a String with spaces.
+     */
+    public static String rightPad(String str, int size) {
+        return rightPad(str, size, ' ');
+    }
+
+    /**
+     * Right pad a String with a specified character.
+     */
+    public static String rightPad(String str, int size, char padChar) {
+        if (str == null) {
+            return null;
+        }
+        int pads = size - str.length();
+        if (pads <= 0) {
+            return str;
+        }
+        return str + repeat(padChar, pads);
+    }
+
+    /**
+     * Repeat a character n times.
+     */
+    public static String repeat(char ch, int repeat) {
+        if (repeat <= 0) {
+            return "";
+        }
+        char[] buf = new char[repeat];
+        Arrays.fill(buf, ch);
+        return new String(buf);
+    }
+
+    /**
+     * Repeat a String n times.
+     */
+    public static String repeat(String str, int repeat) {
+        if (str == null) {
+            return null;
+        }
+        if (repeat <= 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder(str.length() * repeat);
+        for (int i = 0; i < repeat; i++) {
+            sb.append(str);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Strips whitespace from the start and end of a String.
+     */
+    @Nullable
+    public static String strip(@Nullable String str) {
+        return str == null ? null : str.trim();
+    }
+
+    /**
+     * Joins elements with a separator.
+     */
+    public static String join(Iterable<?> iterable, String separator) {
+        if (iterable == null) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (Object obj : iterable) {
+            if (!first) {
+                sb.append(separator);
+            }
+            if (obj != null) {
+                sb.append(obj);
+            }
+            first = false;
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Removes a substring only if it is at the start of a source string.
+     */
+    public static String removeStart(String str, String remove) {
+        if (isEmpty(str) || isEmpty(remove)) {
+            return str;
+        }
+        if (str.startsWith(remove)) {
+            return str.substring(remove.length());
+        }
+        return str;
+    }
+
+    /**
+     * Removes a substring only if it is at the end of a source string.
+     */
+    public static String removeEnd(String str, String remove) {
+        if (isEmpty(str) || isEmpty(remove)) {
+            return str;
+        }
+        if (str.endsWith(remove)) {
+            return str.substring(0, str.length() - remove.length());
+        }
+        return str;
+    }
+
+    /**
+     * Case insensitive check if a CharSequence contains a search CharSequence.
+     */
+    public static boolean containsIgnoreCase(CharSequence str, CharSequence searchStr) {
+        if (str == null || searchStr == null) {
+            return false;
+        }
+        return str.toString().toLowerCase(Locale.ENGLISH).contains(searchStr.toString().toLowerCase(Locale.ENGLISH));
+    }
+
+    /**
+     * Checks if the CharSequence contains only lowercase characters.
+     */
+    public static boolean isAllLowerCase(CharSequence cs) {
+        if (isEmpty(cs)) {
+            return false;
+        }
+        for (int i = 0; i < cs.length(); i++) {
+            if (!Character.isLowerCase(cs.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Finds the Levenshtein distance between two Strings.
+     */
+    public static int getLevenshteinDistance(CharSequence s, CharSequence t) {
+        if (s == null || t == null) {
+            throw new IllegalArgumentException("Strings must not be null");
+        }
+
+        int n = s.length();
+        int m = t.length();
+
+        if (n == 0) {
+            return m;
+        } else if (m == 0) {
+            return n;
+        }
+
+        if (n > m) {
+            // swap the input strings to consume less memory
+            CharSequence tmp = s;
+            s = t;
+            t = tmp;
+            n = m;
+            m = t.length();
+        }
+
+        int[] p = new int[n + 1];
+        int[] d = new int[n + 1];
+        int[] tempD;
+
+        int i;
+        int j;
+        char tj;
+        int cost;
+
+        for (i = 0; i <= n; i++) {
+            p[i] = i;
+        }
+
+        for (j = 1; j <= m; j++) {
+            tj = t.charAt(j - 1);
+            d[0] = j;
+
+            for (i = 1; i <= n; i++) {
+                cost = s.charAt(i - 1) == tj ? 0 : 1;
+                d[i] = Math.min(Math.min(d[i - 1] + 1, p[i] + 1), p[i - 1] + cost);
+            }
+
+            tempD = p;
+            p = d;
+            d = tempD;
+        }
+
+        return p[n];
+    }
+
+    /**
+     * Checks whether the String contains any character in the given set of characters.
+     */
+    public static boolean containsAny(CharSequence cs, char... searchChars) {
+        if (isEmpty(cs) || searchChars == null || searchChars.length == 0) {
+            return false;
+        }
+        for (int i = 0; i < cs.length(); i++) {
+            char ch = cs.charAt(i);
+            for (char searchChar : searchChars) {
+                if (ch == searchChar) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether the String contains any character in the given set of characters.
+     */
+    public static boolean containsAny(CharSequence cs, String searchChars) {
+        if (searchChars == null) {
+            return false;
+        }
+        return containsAny(cs, searchChars.toCharArray());
+    }
+
+    /**
+     * Strips any of a set of characters from the start of a String.
+     */
+    public static String stripStart(String str, String stripChars) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        if (stripChars == null) {
+            return str.replaceAll("^\\s+", "");
+        }
+        int start = 0;
+        while (start < str.length() && stripChars.indexOf(str.charAt(start)) != -1) {
+            start++;
+        }
+        return str.substring(start);
+    }
+
+    /**
+     * Strips any of a set of characters from the end of a String.
+     */
+    public static String stripEnd(String str, String stripChars) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        if (stripChars == null) {
+            return str.replaceAll("\\s+$", "");
+        }
+        int end = str.length();
+        while (end > 0 && stripChars.indexOf(str.charAt(end - 1)) != -1) {
+            end--;
+        }
+        return str.substring(0, end);
+    }
+
+    /**
+     * Finds the n-th index of a substring within a string.
+     */
+    public static int ordinalIndexOf(CharSequence str, CharSequence searchStr, int ordinal) {
+        if (str == null || searchStr == null || ordinal <= 0) {
+            return -1;
+        }
+        if (searchStr.length() == 0) {
+            return 0;
+        }
+        int found = 0;
+        int index = -1;
+        do {
+            index = str.toString().indexOf(searchStr.toString(), index + 1);
+            if (index < 0) {
+                return index;
+            }
+            found++;
+        } while (found < ordinal);
+        return index;
+    }
+
+    /**
+     * Splits a String preserving all tokens, including empty tokens created by adjacent separators.
+     */
+    public static String[] splitPreserveAllTokens(String str, String separatorChars) {
+        if (str == null) {
+            return null;
+        }
+        if (str.isEmpty()) {
+            return new String[0];
+        }
+        if (separatorChars == null) {
+            separatorChars = " ";
+        }
+        // Build a regex pattern that treats each character as a separator, but preserve empty tokens
+        StringBuilder pattern = new StringBuilder("[");
+        for (char c : separatorChars.toCharArray()) {
+            pattern.append(Pattern.quote(String.valueOf(c)));
+        }
+        pattern.append("]");
+        return str.split(pattern.toString(), -1);
     }
 }

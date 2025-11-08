@@ -16,7 +16,6 @@
 
 package org.gradle.api.reporting.components.internal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.tasks.diagnostics.internal.text.TextReportBuilder;
 import org.gradle.language.base.LanguageSourceSet;
 import org.gradle.platform.base.BinarySpec;
@@ -26,6 +25,7 @@ import org.gradle.platform.base.VariantComponentSpec;
 import org.gradle.reporting.ReportRenderer;
 import org.gradle.util.internal.CollectionUtils;
 
+import org.gradle.util.internal.TextUtil;
 public class ComponentRenderer extends ReportRenderer<ComponentSpec, TextReportBuilder> {
     private final ReportRenderer<LanguageSourceSet, TextReportBuilder> sourceSetRenderer;
     private final ReportRenderer<BinarySpec, TextReportBuilder> binaryRenderer;
@@ -37,7 +37,7 @@ public class ComponentRenderer extends ReportRenderer<ComponentSpec, TextReportB
 
     @Override
     public void render(ComponentSpec component, TextReportBuilder builder) {
-        builder.heading(StringUtils.capitalize(component.getDisplayName()));
+        builder.heading(TextUtil.capitalize(component.getDisplayName()));
         if (component instanceof SourceComponentSpec) {
             SourceComponentSpec sourceComponentSpec = (SourceComponentSpec) component;
             builder.getOutput().println();

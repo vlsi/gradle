@@ -15,11 +15,11 @@
  */
 package org.gradle.internal.exceptions;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.groovy.scripts.ScriptSource;
 import org.gradle.internal.scan.UsedByScanPlugin;
 import org.jspecify.annotations.Nullable;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * A {@code LocationAwareException} is an exception which can be annotated with a location in a script.
  */
@@ -58,7 +58,7 @@ public class LocationAwareException extends ContextAwareException implements Fai
         if (sourceDisplayName == null) {
             return null;
         }
-        String sourceMsg = StringUtils.capitalize(sourceDisplayName);
+        String sourceMsg = TextUtil.capitalize(sourceDisplayName);
         if (lineNumber == null) {
             return sourceMsg;
         }

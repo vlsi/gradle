@@ -16,7 +16,6 @@
 
 package org.gradle.api.plugins.demo.quality
 
-import org.apache.commons.lang3.StringUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -62,7 +61,7 @@ class DemoCodeQualityProjectFeaturePlugin : Plugin<Project> {
                 DemoCodeQualityDefinition::class,
                 HasSources.Sources::class
             ) { _, buildModel, target ->
-                val codeQualityTask = project.tasks.register("check" + StringUtils.capitalize(target.name) + "DemoSourceQuality", Checkstyle::class.java) { task ->
+                val codeQualityTask = project.tasks.register("check" + TextUtil.capitalize(target.name) + "DemoSourceQuality", Checkstyle::class.java) { task ->
                     task.group = LifecycleBasePlugin.VERIFICATION_GROUP
                     task.description = "Runs DemoCodeQuality on the ${target.name} source set."
                     task.source(target.sourceDirectories)
@@ -78,7 +77,7 @@ class DemoCodeQualityProjectFeaturePlugin : Plugin<Project> {
             ) { _, _, target ->
                 val targetModel = getBuildModel(target)
 
-                project.tasks.register("check" + StringUtils.capitalize(targetModel.name) + "DemoBytecodeQuality", DefaultTask::class.java) { task ->
+                project.tasks.register("check" + TextUtil.capitalize(targetModel.name) + "DemoBytecodeQuality", DefaultTask::class.java) { task ->
                     task.group = LifecycleBasePlugin.VERIFICATION_GROUP
                     task.description = "Runs DemoCodeQuality on ${targetModel.name} resulting bytecode."
                 }

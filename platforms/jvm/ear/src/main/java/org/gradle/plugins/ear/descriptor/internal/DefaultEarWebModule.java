@@ -16,9 +16,9 @@
 package org.gradle.plugins.ear.descriptor.internal;
 
 import groovy.util.Node;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.plugins.ear.descriptor.EarWebModule;
 
+import org.gradle.util.internal.TextUtil;
 public class DefaultEarWebModule extends DefaultEarModule implements EarWebModule {
 
     private String contextRoot;
@@ -46,7 +46,7 @@ public class DefaultEarWebModule extends DefaultEarModule implements EarWebModul
         Node web = new Node(parentModule, name);
         new Node(web, nodeNameFor("web-uri", name), getPath());
         new Node(web, nodeNameFor("context-root", name), contextRoot);
-        if (StringUtils.isNotEmpty(getAltDeployDescriptor())) {
+        if (TextUtil.isNotEmpty(getAltDeployDescriptor())) {
             return new Node(parentModule, nodeNameFor("alt-dd", name), getAltDeployDescriptor());
         }
         return null;

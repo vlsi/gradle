@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Interner;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
@@ -271,7 +270,7 @@ public abstract class DefaultVersionCatalogBuilder implements VersionCatalogBuil
         // The zero at the end of the configuration comes from the previous implementation;
         // Multiple files could be imported, and all members of the list were given their own configuration, postfixed by the index in the array.
         // After moving this into a single-file import, we didn't want to break the lock files generated for the configuration, so we simply kept the zero.
-        String confName = "incomingCatalogFor" + StringUtils.capitalize(name) + "0";
+        String confName = "incomingCatalogFor" + TextUtil.capitalize(name) + "0";
         return ((RoleBasedConfigurationContainerInternal) drs.getConfigurationContainer()).resolvableDependencyScopeLocked(confName, conf -> {
             conf.getResolutionStrategy().activateDependencyLocking();
             conf.attributes(attrs -> {

@@ -18,13 +18,12 @@ package org.gradle.internal.resource.transport.gcp.gcs;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang3.StringUtils;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Set;
 
+import org.gradle.util.internal.TextUtil;
 import static java.lang.System.getProperty;
 
 @SuppressWarnings("Duplicates") // re-use not possible across modules currently
@@ -73,10 +72,10 @@ public final class GcsConnectionProperties {
 
     private static URI configureEndpoint(String property) {
         URI uri = null;
-        if (StringUtils.isNotBlank(property)) {
+        if (TextUtil.isNotBlank(property)) {
             try {
                 uri = new URI(property);
-                if (StringUtils.isBlank(uri.getScheme()) || !SUPPORTED_SCHEMES.contains(uri.getScheme().toUpperCase(Locale.ROOT))) {
+                if (TextUtil.isBlank(uri.getScheme()) || !SUPPORTED_SCHEMES.contains(uri.getScheme().toUpperCase(Locale.ROOT))) {
                     throw new IllegalArgumentException("System property [" + GCS_ENDPOINT_PROPERTY + "=" + property + "] must have a scheme of 'http' or 'https'");
                 }
             } catch (URISyntaxException e) {
@@ -87,7 +86,7 @@ public final class GcsConnectionProperties {
     }
 
     private static String configureServicePath(String property) {
-        if (StringUtils.isNotBlank(property)) {
+        if (TextUtil.isNotBlank(property)) {
            return property;
         } else {
             return null;
@@ -95,6 +94,6 @@ public final class GcsConnectionProperties {
     }
 
     private static boolean configureDisableAuthentication(String property) {
-        return StringUtils.isNotBlank(property) && Boolean.parseBoolean(property);
+        return TextUtil.isNotBlank(property) && Boolean.parseBoolean(property);
     }
 }

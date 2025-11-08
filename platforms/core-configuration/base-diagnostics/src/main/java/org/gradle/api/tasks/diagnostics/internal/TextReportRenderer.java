@@ -15,7 +15,6 @@
  */
 package org.gradle.api.tasks.diagnostics.internal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.tasks.diagnostics.internal.text.DefaultTextReportBuilder;
 import org.gradle.api.tasks.diagnostics.internal.text.TextReportBuilder;
@@ -29,6 +28,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * <p>A basic {@link ReportRenderer} which writes out a text report.
  */
@@ -61,7 +61,7 @@ public class TextReportRenderer implements ReportRenderer {
     }
 
     protected String createHeader(ProjectDetails project) {
-        return StringUtils.capitalize(project.getDisplayName());
+        return TextUtil.capitalize(project.getDisplayName());
     }
 
     @Override

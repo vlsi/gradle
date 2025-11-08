@@ -20,7 +20,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Task;
@@ -57,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 import static java.util.Collections.singletonList;
 import static org.gradle.buildinit.plugins.internal.SimpleGlobalFilesBuildSettingsDescriptor.PLUGINS_BUILD_LOCATION;
 
@@ -2093,7 +2093,7 @@ public class BuildScriptBuilder {
         // This code assumes all configurable Boolean property getters follow the `is` prefix convention.
         //
         private String booleanPropertyNameFor(String propertyName) {
-            return "is" + StringUtils.capitalize(propertyName);
+            return "is" + TextUtil.capitalize(propertyName);
         }
 
         @Override

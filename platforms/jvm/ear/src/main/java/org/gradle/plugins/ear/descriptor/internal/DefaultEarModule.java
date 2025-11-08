@@ -18,9 +18,9 @@ package org.gradle.plugins.ear.descriptor.internal;
 import com.google.common.base.Objects;
 import groovy.namespace.QName;
 import groovy.util.Node;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.plugins.ear.descriptor.EarModule;
 
+import org.gradle.util.internal.TextUtil;
 public class DefaultEarModule implements EarModule {
 
     private String path;
@@ -56,7 +56,7 @@ public class DefaultEarModule implements EarModule {
     @Override
     public Node toXmlNode(Node parentModule, Object name) {
         Node node = new Node(parentModule, name, path);
-        if (StringUtils.isNotEmpty(altDeployDescriptor)) {
+        if (TextUtil.isNotEmpty(altDeployDescriptor)) {
             new Node(parentModule, nodeNameFor("alt-dd", name), altDeployDescriptor);
         }
         return node;

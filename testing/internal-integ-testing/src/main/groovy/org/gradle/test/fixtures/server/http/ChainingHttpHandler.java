@@ -18,7 +18,6 @@ package org.gradle.test.fixtures.server.http;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.gradle.integtests.fixtures.timeout.JavaProcessStackTracesMonitor;
 import org.gradle.internal.UncheckedException;
 import org.gradle.internal.exceptions.DefaultMultiCauseException;
@@ -29,6 +28,8 @@ import org.gradle.test.fixtures.ResettableExpectations;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -142,7 +143,7 @@ class ChainingHttpHandler implements HttpHandler, ResettableExpectations {
                 } else {
                     Throwable failure = responseProducer.getFailure();
                     requestFailed(outcome, failure);
-                    String stacktrace = ExceptionUtils.getStackTrace(failure);
+                    String stacktrace = getStackTrace(failure);
                     dumpThreadsUponTimeout(stacktrace);
                     System.out.printf("[%s][%d] handling failed with exception %s%n", getCurrentTimestamp(), id, stacktrace);
                     sendFailure(httpExchange, 400, outcome);
@@ -298,5 +299,12 @@ class ChainingHttpHandler implements HttpHandler, ResettableExpectations {
 
     interface HandlerFactory<T extends TrackingHttpHandler> {
         T create(WaitPrecondition previous);
+    }
+
+    private static String getStackTrace(Throwable throwable) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        throwable.printStackTrace(pw);
+        return sw.toString();
     }
 }

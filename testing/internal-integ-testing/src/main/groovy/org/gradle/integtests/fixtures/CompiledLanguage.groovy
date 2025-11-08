@@ -16,8 +16,6 @@
 
 package org.gradle.integtests.fixtures
 
-import org.apache.commons.lang3.StringUtils
-
 enum CompiledLanguage {
     JAVA,
     GROOVY;
@@ -27,7 +25,7 @@ enum CompiledLanguage {
     }
 
     String getCapitalizedName() {
-        return StringUtils.capitalize(getName())
+        return TextUtil.capitalize(getName())
     }
 
     String getCompileTaskName() {

@@ -17,11 +17,9 @@
 package org.gradle.internal.logging.events;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.List;
 
+import org.gradle.util.internal.TextUtil;
 public class YesNoQuestionPromptEvent extends PromptOutputEvent {
     public static final List<String> YES_NO_CHOICES = ImmutableList.of("yes", "no");
     private final String question;
@@ -40,7 +38,7 @@ public class YesNoQuestionPromptEvent extends PromptOutputEvent {
         StringBuilder builder = new StringBuilder();
         builder.append(question);
         builder.append(" [");
-        builder.append(StringUtils.join(YesNoQuestionPromptEvent.YES_NO_CHOICES, ", "));
+        builder.append(TextUtil.join(YesNoQuestionPromptEvent.YES_NO_CHOICES, ", "));
         builder.append("] ");
         return builder.toString();
     }
@@ -49,7 +47,7 @@ public class YesNoQuestionPromptEvent extends PromptOutputEvent {
     public PromptResult<Boolean> convert(String text) {
         String trimmed = text.trim();
         if (YES_NO_CHOICES.contains(trimmed)) {
-            return PromptResult.response(BooleanUtils.toBoolean(trimmed));
+            return PromptResult.response("yes".equals(trimmed));
         }
         return PromptResult.newPrompt("Please enter 'yes' or 'no': ");
     }

@@ -20,7 +20,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.internal.classpath.RuntimeApiInfo;
 import org.gradle.internal.UncheckedException;
 
@@ -31,6 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.gradle.util.internal.TextUtil;
 public class DefaultImportsReader implements ImportsReader {
 
     private final String[] importPackages;
@@ -82,7 +82,7 @@ public class DefaultImportsReader implements ImportsReader {
 
             @Override
             public boolean processLine(String line) throws IOException {
-                boolean process = !StringUtils.isEmpty(line);
+                boolean process = !TextUtil.isEmpty(line);
                 if (process) {
                     String[] split = line.split(":");
                     if (split.length == 2) {

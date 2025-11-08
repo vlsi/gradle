@@ -16,8 +16,6 @@
 
 package org.gradle.api.internal.artifacts.ivyservice;
 
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -25,6 +23,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Base64;
+import java.util.Objects;
 
 /**
  * Represents an identifier containing a tuple of namespace and name for use when
@@ -117,9 +116,6 @@ public class NamespaceId implements Serializable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 31)
-                .append(namespace)
-                .append(name)
-                .toHashCode();
+        return Objects.hash(namespace, name);
     }
 }

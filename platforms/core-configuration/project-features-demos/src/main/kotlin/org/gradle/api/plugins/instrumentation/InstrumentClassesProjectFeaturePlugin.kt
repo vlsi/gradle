@@ -16,7 +16,6 @@
 
 package org.gradle.api.plugins.instrumentation
 
-import org.apache.commons.lang3.StringUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -52,7 +51,7 @@ class InstrumentClassesProjectFeaturePlugin : Plugin<Project> {
                 InstrumentClassesDefinition::class,
                 JavaSources::class
             ) { definition, buildModel, target ->
-                    val instrumentClassesTask = project.tasks.register("instrument" + StringUtils.capitalize(target.name) + "Classes", InstrumentClasses::class.java) { task ->
+                    val instrumentClassesTask = project.tasks.register("instrument" + TextUtil.capitalize(target.name) + "Classes", InstrumentClasses::class.java) { task ->
                         task.group = LifecycleBasePlugin.BUILD_GROUP
                         task.description = "Instruments the ${target.name} classes."
                         task.bytecodeDir.set(getBuildModel(target).byteCodeDir)

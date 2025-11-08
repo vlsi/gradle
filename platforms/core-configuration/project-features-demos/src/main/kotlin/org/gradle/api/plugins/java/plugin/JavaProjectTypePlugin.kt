@@ -16,7 +16,7 @@
 
 package org.gradle.api.plugins.java.plugin
 
-import org.apache.commons.lang3.StringUtils.capitalize
+import org.gradle.util.internal.TextUtil.capitalize
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.plugins.BindsProjectType

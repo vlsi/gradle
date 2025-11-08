@@ -15,7 +15,6 @@
  */
 package org.gradle.api.internal.artifacts.dsl;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.capabilities.Capability;
 import org.gradle.internal.Factory;
@@ -29,6 +28,7 @@ import org.gradle.internal.typeconversion.TypeConversionException;
 import org.gradle.internal.typeconversion.TypedNotationConverter;
 import org.jspecify.annotations.Nullable;
 
+import org.gradle.util.internal.TextUtil;
 public class CapabilityNotationParserFactory implements Factory<NotationParser<Object, Capability>> {
     private final static CapabilityNotationParser STRICT_CONVERTER = createSingletonConverter(true);
     private final static CapabilityNotationParser LENIENT_CONVERTER = createSingletonConverter(false);
@@ -81,7 +81,7 @@ public class CapabilityNotationParserFactory implements Factory<NotationParser<O
                 }
             }
             for (String part : parts) {
-                if (StringUtils.isEmpty(part)) {
+                if (TextUtil.isEmpty(part)) {
                     reportInvalidNotation(stringNotation);
                 }
             }

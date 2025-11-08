@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.artifacts.VersionConstraint;
 import org.gradle.api.artifacts.capability.CapabilitySelector;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
@@ -64,13 +63,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.gradle.util.internal.TextUtil;
 import static com.google.gson.stream.JsonToken.BOOLEAN;
 import static com.google.gson.stream.JsonToken.END_ARRAY;
 import static com.google.gson.stream.JsonToken.END_OBJECT;
 import static com.google.gson.stream.JsonToken.NULL;
 import static com.google.gson.stream.JsonToken.NUMBER;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang3.StringUtils.capitalize;
+import static org.gradle.util.internal.TextUtil.capitalize;
 
 public class GradleModuleMetadataParser {
     private final static Logger LOGGER = Logging.getLogger(GradleModuleMetadataParser.class);
@@ -653,7 +653,7 @@ public class GradleModuleMetadataParser {
     }
 
     private void assertDefined(JsonReader reader, String attribute, String value) {
-        if (StringUtils.isEmpty(value)) {
+        if (TextUtil.isEmpty(value)) {
             String path = reader.getPath();
             // remove leading '$', remove last child segment, use '/' as separator
             throw new RuntimeException("missing '" + attribute + "' at " + path.substring(1, path.lastIndexOf('.')).replace('.', '/'));

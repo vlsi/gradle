@@ -16,12 +16,12 @@
 
 package org.gradle.ide.xcode.internal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.util.internal.CollectionUtils;
 
 import java.io.File;
 import java.util.Arrays;
 
+import org.gradle.util.internal.TextUtil;
 public class XcodeUtils {
     private XcodeUtils() {}
 
@@ -30,7 +30,7 @@ public class XcodeUtils {
     }
 
     public static String toSpaceSeparatedList(Iterable<File> it) {
-        return StringUtils.join(CollectionUtils.collect(it, file -> quote(file.getAbsolutePath())), ' ');
+        return TextUtil.join(CollectionUtils.collect(it, file -> quote(file.getAbsolutePath())), ' ');
     }
 
     private static String quote(String value) {

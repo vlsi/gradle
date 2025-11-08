@@ -27,7 +27,6 @@ import groovy.lang.Closure;
 import groovy.lang.MissingMethodException;
 import groovy.lang.MissingPropertyException;
 import groovy.lang.ReadOnlyPropertyException;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.internal.Cast;
 import org.gradle.internal.reflect.Types.TypeVisitResult;
 import org.gradle.internal.reflect.Types.TypeVisitor;
@@ -70,6 +69,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.gradle.util.internal.TextUtil;
 import static org.gradle.internal.reflect.Methods.SIGNATURE_EQUIVALENCE;
 import static org.gradle.internal.reflect.PropertyAccessorType.GET_GETTER;
 import static org.gradle.internal.reflect.PropertyAccessorType.IS_GETTER;
@@ -577,7 +577,7 @@ public class ManagedProxyClassGenerator extends AbstractProxyClassGenerator {
     private void writeReadOnlySetter(ClassVisitor visitor, Class<?> viewClass, boolean writable, ModelProperty<?> property) {
         if (!writable) {
             // Adds a void set$PropName(Object value) method that fails
-            String setterName = "set" + StringUtils.capitalize(property.getName());
+            String setterName = "set" + TextUtil.capitalize(property.getName());
             MethodVisitor methodVisitor = declareMethod(visitor, setterName, SET_OBJECT_PROPERTY_DESCRIPTOR, null, ACC_PUBLIC | ACC_SYNTHETIC);
 
             // throw new ReadOnlyPropertyException(name, <view-type>.class)

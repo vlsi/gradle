@@ -16,11 +16,10 @@
 
 package org.gradle.plugins.ide.internal.tooling.model;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.Serializable;
 import java.util.Comparator;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * Compares task names to create ordering for selector launching.
  */
@@ -47,6 +46,6 @@ public class TaskNameComparator implements Comparator<String>, Serializable {
     }
 
     static int getDepth(String taskName) {
-        return StringUtils.countMatches(taskName, ":");
+        return TextUtil.countMatches(taskName, ":");
     }
 }

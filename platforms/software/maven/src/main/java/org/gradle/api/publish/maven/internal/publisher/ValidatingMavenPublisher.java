@@ -16,7 +16,6 @@
 
 package org.gradle.api.publish.maven.internal.publisher;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -31,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -117,7 +117,7 @@ public class ValidatingMavenPublisher implements MavenPublisher {
 
     private void checkNotDuplicate(MavenNormalizedPublication publication, Set<MavenArtifact> artifacts, String extension, String classifier) {
         for (MavenArtifact artifact : artifacts) {
-            if (ObjectUtils.equals(artifact.getExtension(), extension) && ObjectUtils.equals(artifact.getClassifier(), classifier)) {
+            if (Objects.equals(artifact.getExtension(), extension) && Objects.equals(artifact.getClassifier(), classifier)) {
                 String message = String.format(
                         "multiple artifacts with the identical extension and classifier ('%s', '%s').", extension, classifier
                 );

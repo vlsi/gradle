@@ -16,7 +16,6 @@
 
 package org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.component.ComponentArtifactIdentifier;
@@ -45,6 +44,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import org.gradle.util.internal.TextUtil;
 @ServiceScope(Scope.BuildTree.class)
 public class ArtifactSetToFileCollectionFactory {
 
@@ -172,7 +172,7 @@ public class ArtifactSetToFileCollectionFactory {
 
         @Override
         public String getCapitalizedDisplayName() {
-            return StringUtils.capitalize(displayName);
+            return TextUtil.capitalize(displayName);
         }
 
         @Override

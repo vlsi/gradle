@@ -16,7 +16,6 @@
 
 package org.gradle.api.internal.tasks.properties;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.internal.GeneratedSubclass;
 import org.gradle.api.problems.ProblemSpec;
@@ -319,7 +318,7 @@ public enum ValidationActions implements ValidationAction {
     }
 
     private static String toCandidateSolution(String conversionCandidate) {
-        String result = StringUtils.uncapitalize(conversionCandidate);
+        String result = TextUtil.uncapitalize(conversionCandidate);
         if (result.endsWith(".")) {
             result = result.substring(0, result.lastIndexOf("."));
         }

@@ -19,7 +19,6 @@ package org.gradle.internal.resource.transport.aws.s3;
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.internal.resource.transport.http.HttpProxySettings;
 import org.gradle.internal.resource.transport.http.JavaSystemPropertiesHttpProxySettings;
 import org.gradle.internal.resource.transport.http.JavaSystemPropertiesSecureHttpProxySettings;
@@ -29,6 +28,7 @@ import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Set;
 
+import org.gradle.util.internal.TextUtil;
 import static java.lang.System.getProperty;
 
 public class S3ConnectionProperties {
@@ -62,10 +62,10 @@ public class S3ConnectionProperties {
 
     private Optional<URI> configureEndpoint(String property) {
         URI uri = null;
-        if (StringUtils.isNotBlank(property)) {
+        if (TextUtil.isNotBlank(property)) {
             try {
                 uri = new URI(property);
-                if (StringUtils.isBlank(uri.getScheme()) || !SUPPORTED_SCHEMES.contains(uri.getScheme().toUpperCase(Locale.ROOT))) {
+                if (TextUtil.isBlank(uri.getScheme()) || !SUPPORTED_SCHEMES.contains(uri.getScheme().toUpperCase(Locale.ROOT))) {
                     throw new IllegalArgumentException("System property [" + S3_ENDPOINT_PROPERTY + "=" + property + "] must have a scheme of 'http' or 'https'");
                 }
             } catch (URISyntaxException e) {

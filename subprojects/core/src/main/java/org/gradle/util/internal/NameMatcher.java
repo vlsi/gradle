@@ -15,8 +15,6 @@
  */
 package org.gradle.util.internal;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.function.TriConsumer;
 import org.gradle.api.problems.ProblemId;
 import org.gradle.api.problems.internal.GradleCoreProblemGroup;
 
@@ -29,6 +27,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * Selects a single item from a collection based on a camel case pattern.
  */
@@ -122,7 +121,7 @@ public class NameMatcher {
             }
             if (!found) {
                 @SuppressWarnings("deprecation")
-                int levenshteinDistance = StringUtils.getLevenshteinDistance(normalisedPattern, candidate.toUpperCase(Locale.ROOT));
+                int levenshteinDistance = TextUtil.getLevenshteinDistance(normalisedPattern, candidate.toUpperCase(Locale.ROOT));
                 if (levenshteinDistance <= Math.min(3, pattern.length() / 2)) {
                     candidates.add(candidate);
                 }
@@ -235,5 +234,10 @@ public class NameMatcher {
         } else {
             return ProblemId.create("selection-failed", "Selection failed", GradleCoreProblemGroup.taskSelection());
         }
+    }
+
+    @FunctionalInterface
+    private interface TriConsumer<T, U, V> {
+        void accept(T t, U u, V v);
     }
 }

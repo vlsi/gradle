@@ -15,7 +15,6 @@
  */
 package org.gradle.api.tasks.diagnostics;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Incubating;
 import org.gradle.api.Project;
 import org.gradle.api.internal.project.ProjectInternal;
@@ -42,6 +41,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.Description;
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.Header;
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.Identifier;
@@ -231,7 +231,7 @@ public abstract class ProjectReportTask extends AbstractProjectBasedReportTask<P
         boolean lastChild
     ) {
         renderer.visit(textOutput -> {
-            textOutput.text(StringUtils.capitalize(model.project.getDisplayName()));
+            textOutput.text(TextUtil.capitalize(model.project.getDisplayName()));
             renderProjectType(model);
             if (!model.isRootProject) {
                 renderProjectDescription(model, textOutput);

@@ -20,7 +20,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.googlecode.jatl.Html;
 import groovy.json.JsonOutput;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.performance.results.CrossVersionPerformanceTestHistory;
 import org.gradle.performance.results.FormatSupport;
 import org.gradle.performance.results.PerformanceScenario;
@@ -36,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.gradle.util.internal.TextUtil;
 import static org.gradle.performance.results.report.AbstractTablePageGenerator.getTeamCityWebUrlFromBuildId;
 
 public class TestPageGenerator extends HtmlPageGenerator<PerformanceTestHistory> implements PerformanceExecutionGraphRenderer {
@@ -202,7 +202,7 @@ public class TestPageGenerator extends HtmlPageGenerator<PerformanceTestHistory>
                 }
 
                 charts.forEach(chart -> {
-                    h3().text(StringUtils.capitalize(chart.getLabel()) + " (" + chart.getUnit() + ")").end();
+                    h3().text(TextUtil.capitalize(chart.getLabel()) + " (" + chart.getUnit() + ")").end();
                     div().classAttr("chart").id(chart.getChartId());
                         p().text("Loading...").end();
                     end();

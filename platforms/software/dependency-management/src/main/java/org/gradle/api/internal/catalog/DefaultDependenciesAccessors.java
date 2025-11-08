@@ -17,7 +17,6 @@ package org.gradle.api.internal.catalog;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.artifacts.VersionCatalog;
 import org.gradle.api.artifacts.VersionCatalogsExtension;
@@ -86,6 +85,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 public class DefaultDependenciesAccessors implements DependenciesAccessors {
     private final static String SUPPORTED_PROJECT_NAMES = "[a-zA-Z]([A-Za-z0-9\\-_])*";
     private final static Pattern SUPPORTED_PATTERN = Pattern.compile(SUPPORTED_PROJECT_NAMES);
@@ -272,7 +272,7 @@ public class DefaultDependenciesAccessors implements DependenciesAccessors {
     }
 
     private String accessorClassNameSuffix(DefaultVersionCatalog model) {
-        return StringUtils.capitalize(model.getName());
+        return TextUtil.capitalize(model.getName());
     }
 
     @Override
@@ -520,7 +520,7 @@ public class DefaultDependenciesAccessors implements DependenciesAccessors {
 
         @Override
         public String getSimpleClassName() {
-            return ACCESSORS_CLASSNAME_PREFIX + StringUtils.capitalize(name);
+            return ACCESSORS_CLASSNAME_PREFIX + TextUtil.capitalize(name);
         }
 
         @Override
@@ -549,7 +549,7 @@ public class DefaultDependenciesAccessors implements DependenciesAccessors {
 
         @Override
         public String getSimpleClassName() {
-            return ACCESSORS_CLASSNAME_PREFIX + StringUtils.capitalize(name) + IN_PLUGINS_BLOCK_FACTORIES_SUFFIX;
+            return ACCESSORS_CLASSNAME_PREFIX + TextUtil.capitalize(name) + IN_PLUGINS_BLOCK_FACTORIES_SUFFIX;
         }
 
         @Override

@@ -24,7 +24,7 @@ import org.gradle.api.problems.internal.InternalDocLink;
 import org.gradle.internal.featurelifecycle.FeatureUsage;
 import org.jspecify.annotations.Nullable;
 
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.gradle.util.internal.TextUtil.isNotEmpty;
 
 public class DeprecatedFeatureUsage extends FeatureUsage {
 

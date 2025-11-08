@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.cache.CleanupProgressMonitor;
 import org.gradle.internal.IoActions;
 import org.gradle.internal.cache.MonitoredCleanupAction;
@@ -54,6 +53,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.gradle.util.internal.TextUtil;
 import static org.apache.commons.io.filefilter.FileFilterUtils.directoryFileFilter;
 import static org.gradle.util.internal.CollectionUtils.single;
 
@@ -63,7 +63,7 @@ public class WrapperDistributionCleanupAction implements MonitoredCleanupAction 
     private static final Logger LOGGER = LoggerFactory.getLogger(WrapperDistributionCleanupAction.class);
 
     private static final ImmutableMap<String, Pattern> JAR_FILE_PATTERNS_BY_PREFIX;
-    private static final String BUILD_RECEIPT_ZIP_ENTRY_PATH = StringUtils.removeStart(DefaultGradleVersion.RESOURCE_NAME, "/");
+    private static final String BUILD_RECEIPT_ZIP_ENTRY_PATH = TextUtil.removeStart(DefaultGradleVersion.RESOURCE_NAME, "/");
 
     static {
         Set<String> prefixes = ImmutableSet.of(

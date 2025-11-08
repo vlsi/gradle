@@ -16,7 +16,6 @@
 
 package org.gradle.integtests.fixtures.logging;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.integtests.fixtures.executer.LogContent;
 
 import java.util.Arrays;
@@ -29,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * Parses console output into its pieces for verification in functional tests
  *
@@ -193,7 +193,7 @@ public class GroupedOutputFixture {
     private void consumeTaskOutput(Matcher matcher) {
         String taskName = matcher.group(1);
         String taskOutcome = matcher.group(2);
-        String taskOutput = StringUtils.strip(matcher.group(3), "\n");
+        String taskOutput = TextUtil.strip(matcher.group(3), "\n");
 
         GroupedTaskOutputFixture task = tasks.get(taskName);
         if (task == null) {
@@ -209,7 +209,7 @@ public class GroupedOutputFixture {
         String initialSubjectType = matcher.group(1);
         String subject = matcher.group(2);
         String transformer = matcher.group(3);
-        String transformOutput = StringUtils.strip(matcher.group(4), "\n");
+        String transformOutput = TextUtil.strip(matcher.group(4), "\n");
 
         String key = initialSubjectType + ";" + subject + ";" + transformer;
 

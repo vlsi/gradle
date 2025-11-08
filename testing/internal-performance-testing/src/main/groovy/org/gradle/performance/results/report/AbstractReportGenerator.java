@@ -16,7 +16,6 @@
 
 package org.gradle.performance.results.report;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.GradleException;
 import org.gradle.internal.UncheckedException;
 import org.gradle.performance.results.FileRenderer;
@@ -43,6 +42,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 import static org.gradle.performance.results.PerformanceFlakinessDataProvider.EmptyPerformanceFlakinessDataProvider;
 
 public abstract class AbstractReportGenerator<R extends ResultsStore> {
@@ -189,7 +189,7 @@ public abstract class AbstractReportGenerator<R extends ResultsStore> {
 
     protected void copyResource(String resourceName, File outputDirectory) {
         URL resource = getClass().getClassLoader().getResource("org/gradle/reporting/" + resourceName);
-        String dir = StringUtils.substringAfterLast(resourceName, ".");
+        String dir = TextUtil.substringAfterLast(resourceName, ".");
         GFileUtils.copyURLToFile(resource, new File(outputDirectory, dir + "/" + resourceName));
     }
 

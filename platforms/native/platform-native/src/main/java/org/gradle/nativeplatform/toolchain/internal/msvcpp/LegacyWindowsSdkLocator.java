@@ -18,7 +18,6 @@ package org.gradle.nativeplatform.toolchain.internal.msvcpp;
 import com.google.common.collect.Lists;
 import net.rubygrapefruit.platform.MissingRegistryEntryException;
 import net.rubygrapefruit.platform.WindowsRegistry;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.internal.FileUtils;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.platform.base.internal.toolchain.ComponentFound;
@@ -34,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.gradle.util.internal.TextUtil;
 //TODO: Simplify this class by busting it up into a locator for legacy SDKs and locator(s) for Windows 8 kits
 public class LegacyWindowsSdkLocator implements WindowsSdkLocator {
     private static final Logger LOGGER = LoggerFactory.getLogger(LegacyWindowsSdkLocator.class);
@@ -241,7 +241,7 @@ public class LegacyWindowsSdkLocator implements WindowsSdkLocator {
     }
 
     private static String formatVersion(String version) {
-        int index = StringUtils.ordinalIndexOf(version, ".", 2);
+        int index = TextUtil.ordinalIndexOf(version, ".", 2);
 
         if (index != -1) {
             version = version.substring(0, index);

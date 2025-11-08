@@ -17,7 +17,6 @@
 package org.gradle.internal.execution.steps;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.internal.Try;
 import org.gradle.internal.execution.ExecutionEngine.Execution;
 import org.gradle.internal.execution.UnitOfWork;
@@ -30,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Formatter;
 import java.util.List;
 
+import org.gradle.util.internal.TextUtil;
 import static org.gradle.internal.execution.ExecutionEngine.ExecutionOutcome.UP_TO_DATE;
 
 public class SkipUpToDateStep<C extends IncrementalChangesContext> implements Step<C, UpToDateResult> {
@@ -79,7 +79,7 @@ public class SkipUpToDateStep<C extends IncrementalChangesContext> implements St
     private static void logExecutionReasons(List<String> reasons, UnitOfWork work) {
         if (LOGGER.isInfoEnabled()) {
             Formatter formatter = new Formatter();
-            formatter.format("%s is not up-to-date because:", StringUtils.capitalize(work.getDisplayName()));
+            formatter.format("%s is not up-to-date because:", TextUtil.capitalize(work.getDisplayName()));
             for (String message : reasons) {
                 formatter.format("%n  %s", message);
             }

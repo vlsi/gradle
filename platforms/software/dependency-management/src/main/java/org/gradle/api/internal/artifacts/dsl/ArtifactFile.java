@@ -16,11 +16,11 @@
 
 package org.gradle.api.internal.artifacts.dsl;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * Given a Module and a File that is to be an artifact, attempts to determine the appropriate name+classifier+extension from the file name.
  */
@@ -40,7 +40,7 @@ public class ArtifactFile {
         boolean done = false;
 
         if (version != null) {
-            int startVersion = StringUtils.lastIndexOf(name, "-" + version);
+            int startVersion = name.lastIndexOf("-" + version);
             if (startVersion >= 0) {
                 int endVersion = startVersion + version.length() + 1;
                 if (endVersion == name.length()) {
@@ -49,10 +49,10 @@ public class ArtifactFile {
                 } else if (endVersion < name.length() && name.charAt(endVersion) == '-') {
                     String tail = name.substring(endVersion + 1);
                     name = name.substring(0, startVersion);
-                    classifier = StringUtils.substringBeforeLast(tail, ".");
-                    extension = StringUtils.substringAfterLast(tail, ".");
+                    classifier = TextUtil.substringBeforeLast(tail, ".");
+                    extension = TextUtil.substringAfterLast(tail, ".");
                     done = true;
-                } else if (endVersion < name.length() && StringUtils.lastIndexOf(name, ".") == endVersion) {
+                } else if (endVersion < name.length() && name.lastIndexOf(".") == endVersion) {
                     extension = name.substring(endVersion + 1);
                     name = name.substring(0, startVersion);
                     done = true;
@@ -60,8 +60,8 @@ public class ArtifactFile {
             }
         }
         if (!done) {
-            extension = StringUtils.substringAfterLast(name, ".");
-            name = StringUtils.substringBeforeLast(name, ".");
+            extension = TextUtil.substringAfterLast(name, ".");
+            name = TextUtil.substringBeforeLast(name, ".");
         }
         if (classifier.length() == 0) {
             classifier = null;

@@ -16,7 +16,6 @@
 
 package org.gradle.api.distribution.plugins;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
@@ -114,8 +113,8 @@ public abstract class DistributionBasePlugin implements Plugin<Project> {
         } else {
             zipTaskName = dist.getName() + "DistZip";
             tarTaskName = dist.getName() + "DistTar";
-            installTaskName = "install" + StringUtils.capitalize(dist.getName()) + "Dist";
-            assembleTaskName = "assemble" + StringUtils.capitalize(dist.getName()) + "Dist";
+            installTaskName = "install" + TextUtil.capitalize(dist.getName()) + "Dist";
+            assembleTaskName = "assemble" + TextUtil.capitalize(dist.getName()) + "Dist";
             dist.getDistributionBaseName().convention(String.format("%s-%s", project.getName(), dist.getName()));
         }
 

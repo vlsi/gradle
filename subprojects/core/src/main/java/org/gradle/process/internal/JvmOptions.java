@@ -16,7 +16,6 @@
 
 package org.gradle.process.internal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.FileCollectionFactory;
@@ -41,6 +40,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 public class JvmOptions {
     private static final String XMS_PREFIX = "-Xms";
     private static final String XMX_PREFIX = "-Xmx";
@@ -264,7 +264,7 @@ public class JvmOptions {
             } else if (argStr.startsWith(XMX_PREFIX)) {
                 maxHeapSize = argStr.substring(XMX_PREFIX.length());
             } else if (argStr.startsWith(BOOTCLASSPATH_PREFIX)) {
-                String[] bootClasspath = StringUtils.split(argStr.substring(BOOTCLASSPATH_PREFIX.length()), File.pathSeparatorChar);
+                String[] bootClasspath = TextUtil.split(argStr.substring(BOOTCLASSPATH_PREFIX.length()), File.pathSeparatorChar);
                 setBootstrapClasspath((Object[]) bootClasspath);
             } else if (argStr.startsWith("-D")) {
                 String keyValue = argStr.substring(2);

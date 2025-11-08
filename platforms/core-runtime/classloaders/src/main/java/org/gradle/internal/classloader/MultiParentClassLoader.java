@@ -16,7 +16,6 @@
 package org.gradle.internal.classloader;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * A {@code ClassLoader} which delegates to multiple parent ClassLoaders.
  *
@@ -59,7 +59,7 @@ public class MultiParentClassLoader extends ClassLoader implements DelegatingCla
 
     @Override
     public String toString() {
-        return MultiParentClassLoader.class.getSimpleName() + "(" + StringUtils.join(parents, ", ") + ")";
+        return MultiParentClassLoader.class.getSimpleName() + "(" + TextUtil.join(parents, ", ") + ")";
     }
 
     public void addParent(ClassLoader parent) {

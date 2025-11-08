@@ -16,7 +16,6 @@
 
 package org.gradle.platform.base.internal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
@@ -27,6 +26,7 @@ import org.gradle.api.internal.TaskInternal;
 import org.gradle.model.internal.core.NamedEntityInstantiator;
 import org.gradle.platform.base.BinaryTasksCollection;
 
+import org.gradle.util.internal.TextUtil;
 public class DefaultBinaryTasksCollection extends DefaultDomainObjectSet<Task> implements BinaryTasksCollection {
 
     private final BinarySpecInternal binary;
@@ -40,12 +40,12 @@ public class DefaultBinaryTasksCollection extends DefaultDomainObjectSet<Task> i
 
     @Override
     public String taskName(String verb) {
-        return verb + StringUtils.capitalize(binary.getProjectScopedName());
+        return verb + TextUtil.capitalize(binary.getProjectScopedName());
     }
 
     @Override
     public String taskName(String verb, String object) {
-        return verb + StringUtils.capitalize(binary.getProjectScopedName()) + StringUtils.capitalize(object);
+        return verb + TextUtil.capitalize(binary.getProjectScopedName()) + TextUtil.capitalize(object);
     }
 
     @Override

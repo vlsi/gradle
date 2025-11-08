@@ -15,7 +15,6 @@
  */
 package org.gradle.nativeplatform.plugins;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Incubating;
@@ -113,6 +112,7 @@ import org.gradle.platform.base.internal.dependents.DependentBinariesResolver;
 import javax.inject.Inject;
 import java.io.File;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * A plugin that sets up the infrastructure for defining native binaries.
  */
@@ -269,7 +269,7 @@ public abstract class NativeComponentModelPlugin implements Plugin<Project> {
             for (final SourceComponentSpec nativeComponentSpec : components.withType(SourceComponentSpec.class).values()) {
                 for (final DependentSourceSetInternal dependentSourceSet : nativeComponentSpec.getSources().withType(DependentSourceSetInternal.class).values()) {
                     if (dependentSourceSet.getPrefixHeaderFile() != null) {
-                        String taskName = "generate" + StringUtils.capitalize(nativeComponentSpec.getName()) + StringUtils.capitalize(dependentSourceSet.getName()) + "PrefixHeaderFile";
+                        String taskName = "generate" + TextUtil.capitalize(nativeComponentSpec.getName()) + TextUtil.capitalize(dependentSourceSet.getName()) + "PrefixHeaderFile";
                         tasks.create(taskName, PrefixHeaderFileGenerateTask.class, new Action<PrefixHeaderFileGenerateTask>() {
                             @Override
                             public void execute(PrefixHeaderFileGenerateTask prefixHeaderFileGenerateTask) {
@@ -293,7 +293,7 @@ public abstract class NativeComponentModelPlugin implements Plugin<Project> {
                             if (dependentSourceSet.getPreCompiledHeader() != null) {
                                 nativeBinarySpec.addPreCompiledHeaderFor(dependentSourceSet);
                                 final SourceTransformTaskConfig pchTransformTaskConfig = transform.getPchTransformTask();
-                                String pchTaskName = pchTransformTaskConfig.getTaskPrefix() + StringUtils.capitalize(nativeBinarySpec.getProjectScopedName()) + StringUtils.capitalize(dependentSourceSet.getName()) + "PreCompiledHeader";
+                                String pchTaskName = pchTransformTaskConfig.getTaskPrefix() + TextUtil.capitalize(nativeBinarySpec.getProjectScopedName()) + TextUtil.capitalize(dependentSourceSet.getName()) + "PreCompiledHeader";
                                 @SuppressWarnings("deprecation")
                                 Task pchTask = tasks.create(pchTaskName, pchTransformTaskConfig.getTaskType(), new Action<DefaultTask>() {
                                     @Override

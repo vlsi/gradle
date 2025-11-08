@@ -16,7 +16,6 @@
 
 package org.gradle.execution.selection;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Task;
 import org.gradle.api.internal.project.ProjectState;
 import org.gradle.api.problems.ProblemId;
@@ -51,6 +50,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import org.gradle.util.internal.TextUtil;
 public class DefaultBuildTaskSelector implements BuildTaskSelector {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultBuildTaskSelector.class);
     private final BuildStateRegistry buildRegistry;
@@ -193,7 +193,7 @@ public class DefaultBuildTaskSelector implements BuildTaskSelector {
         // - the root path
         // - have empty or blank segments (eg `::a`, `a::b`, `a:  :b`, etc)
 
-        if (name.isEmpty() || StringUtils.isBlank(name)) {
+        if (name.isEmpty() || TextUtil.isBlank(name)) {
             String message = String.format("Cannot locate matching %s for an empty path. The path should include a task name (for example %s).", type, examplePaths());
             ProblemId id = ProblemId.create("empty-path", "Empty path", GradleCoreProblemGroup.taskSelection());
             throw problemsService.getInternalReporter().throwing(new TaskSelectionException(message), id, spec -> {
@@ -215,7 +215,7 @@ public class DefaultBuildTaskSelector implements BuildTaskSelector {
             boolean isAbsolute = emptyFirstSegment.matcher(name).find();
             StringBuilder normalized = new StringBuilder();
             for (int i = 0; i < path.segmentCount(); i++) {
-                if (!StringUtils.isBlank(path.segment(i))) {
+                if (!TextUtil.isBlank(path.segment(i))) {
                     if (isAbsolute || normalized.length() > 0) {
                         normalized.append(":");
                     }

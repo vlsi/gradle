@@ -16,7 +16,6 @@
 
 package org.gradle.execution.plan;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.internal.Cast;
 import org.gradle.internal.logging.text.TreeFormatter;
 import org.jspecify.annotations.Nullable;
@@ -25,6 +24,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 import java.util.List;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * Represents some source of work items of type {@link T}. Implementations must be thread safe.
  */
@@ -121,7 +121,7 @@ public interface WorkSource<T> {
         }
 
         public void describeTo(TreeFormatter formatter) {
-            formatter.node(StringUtils.capitalize(displayName));
+            formatter.node(TextUtil.capitalize(displayName));
             formatter.startChildren();
             if (!queuedNodes.isEmpty()) {
                 formatter.node("Waiting for nodes");

@@ -16,8 +16,8 @@
 
 package org.gradle.language.nativeplatform.internal;
 
-import org.apache.commons.lang3.StringUtils;
 
+import org.gradle.util.internal.TextUtil;
 public abstract class Names {
 
     public static Names of(String name) {
@@ -77,7 +77,7 @@ public abstract class Names {
 
         @Override
         public String getCompileTaskName(String language) {
-            return "compile" + StringUtils.capitalize(language);
+            return "compile" + TextUtil.capitalize(language);
         }
 
         @Override
@@ -102,7 +102,7 @@ public abstract class Names {
 
         @Override
         public Names append(String suffix) {
-            return Names.of("main" + StringUtils.capitalize(suffix));
+            return Names.of("main" + TextUtil.capitalize(suffix));
         }
     }
 
@@ -160,7 +160,7 @@ public abstract class Names {
 
         @Override
         public String withSuffix(String suffix) {
-            return baseName + StringUtils.capitalize(suffix);
+            return baseName + TextUtil.capitalize(suffix);
         }
 
         @Override
@@ -170,7 +170,7 @@ public abstract class Names {
 
         @Override
         public String getCompileTaskName(String language) {
-            return "compile" + capitalizedBaseName + StringUtils.capitalize(language);
+            return "compile" + capitalizedBaseName + TextUtil.capitalize(language);
         }
 
         // Includes trailing '/'
@@ -181,7 +181,7 @@ public abstract class Names {
 
         @Override
         public Names append(String suffix) {
-            return Names.of(name + StringUtils.capitalize(suffix));
+            return Names.of(name + TextUtil.capitalize(suffix));
         }
 
         private void append(String name, int start, int end, StringBuilder baseName, StringBuilder lowerBaseName, StringBuilder capBaseName, StringBuilder dirName) {

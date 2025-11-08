@@ -17,7 +17,6 @@ package gradlebuild.docs.dsl.source.model;
 
 import gradlebuild.docs.model.Attachable;
 import gradlebuild.docs.model.ClassMetaDataRepository;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 
@@ -30,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * Static meta-data about a class extracted from the source for the class.
  */
@@ -58,7 +58,7 @@ public class ClassMetaData extends AbstractLanguageElement implements Serializab
     }
 
     public ClassMetaData(String className) {
-        this(className, StringUtils.substringBeforeLast(className, "."), MetaType.CLASS, false, "");
+        this(className, TextUtil.substringBeforeLast(className, "."), MetaType.CLASS, false, "");
     }
 
     @Override
@@ -71,7 +71,7 @@ public class ClassMetaData extends AbstractLanguageElement implements Serializab
     }
 
     public String getSimpleName() {
-        return StringUtils.substringAfterLast(className, ".");
+        return TextUtil.substringAfterLast(className, ".");
     }
 
     public String getPackageName() {

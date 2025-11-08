@@ -20,7 +20,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Transformer;
 import org.gradle.jvm.application.scripts.JavaAppStartScriptGenerationDetails;
 import org.gradle.util.internal.CollectionUtils;
@@ -33,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 public class StartScriptTemplateBindingFactory implements Transformer<Map<String, String>, JavaAppStartScriptGenerationDetails> {
 
     private final boolean windows;
@@ -224,7 +224,7 @@ public class StartScriptTemplateBindingFactory implements Transformer<Map<String
     }
 
     String createJoinedAppHomeRelativePath(String scriptRelPath) {
-        int depth = StringUtils.countMatches(scriptRelPath, "/");
+        int depth = TextUtil.countMatches(scriptRelPath, "/");
         if (depth == 0) {
             return "";
         }

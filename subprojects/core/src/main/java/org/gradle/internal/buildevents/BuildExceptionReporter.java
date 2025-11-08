@@ -16,7 +16,6 @@
 package org.gradle.internal.buildevents;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.internal.DocumentationRegistry;
 import org.gradle.api.logging.LogLevel;
@@ -55,8 +54,9 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.gradle.util.internal.TextUtil;
 import static java.lang.String.join;
-import static org.apache.commons.lang3.StringUtils.repeat;
+import static org.gradle.util.internal.TextUtil.repeat;
 import static org.gradle.api.logging.LogLevel.DEBUG;
 import static org.gradle.api.logging.LogLevel.INFO;
 import static org.gradle.initialization.StartParameterBuildOptions.BuildScanOption.LONG_OPTION;
@@ -297,7 +297,7 @@ public class BuildExceptionReporter implements Action<Throwable> {
         }
 
         private static boolean isUsefulMessage(String message) {
-            return StringUtils.isNotBlank(message) && !message.endsWith(NO_ERROR_MESSAGE_INDICATOR);
+            return TextUtil.isNotBlank(message) && !message.endsWith(NO_ERROR_MESSAGE_INDICATOR);
         }
 
         @Override

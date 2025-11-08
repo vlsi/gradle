@@ -16,7 +16,6 @@
 
 package org.gradle.api.plugins.checkstyle
 
-import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.plugins.BindsProjectFeature
@@ -46,7 +45,7 @@ class CheckstyleProjectFeaturePlugin : Plugin<Project> {
                 CheckstyleSourceSetDefinition::class,
                 HasJavaSources.JavaSources::class
             ) { definition, buildModel, target ->
-                val checkstyleTask = project.tasks.register("check" + StringUtils.capitalize(target.name) + "Checkstyle", Checkstyle::class.java) { task ->
+                val checkstyleTask = project.tasks.register("check" + TextUtil.capitalize(target.name) + "Checkstyle", Checkstyle::class.java) { task ->
                     task.group = LifecycleBasePlugin.VERIFICATION_GROUP
                     task.description = "Runs Checkstyle on the ${target.name} source set."
                     task.source(getBuildModel(target).inputSources)

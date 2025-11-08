@@ -15,13 +15,13 @@
  */
 package org.gradle.api.internal.tasks.testing.report;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.internal.SafeFileLocationUtils;
 
 import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * Test results for a given class.
  *
@@ -82,7 +82,7 @@ public class ClassTestResults extends CompositeTestResults {
     }
 
     public String getSimpleName() {
-        String simpleName = StringUtils.substringAfterLast(name, ".");
+        String simpleName = TextUtil.substringAfterLast(name, ".");
         if (simpleName.equals("")) {
             return name;
         }

@@ -16,7 +16,6 @@
 
 package org.gradle.unexported.buildinit.plugins.internal.maven;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Exclusion;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
@@ -55,6 +54,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * This script obtains the effective POM of the current project, reads its dependencies
  * and generates build.gradle scripts. It also generates settings.gradle for multi-module builds. <br>
@@ -285,7 +285,7 @@ public class Maven2Gradle {
             return null;
         }
         String artifactId = project.getArtifactId();
-        String groupId = StringUtils.isNotEmpty(project.getGroupId()) ? project.getGroupId() : project.getParent().getGroupId();
+        String groupId = TextUtil.isNotEmpty(project.getGroupId()) ? project.getGroupId() : project.getParent().getGroupId();
         return DefaultModuleIdentifier.newId(groupId, artifactId);
     }
 
@@ -295,7 +295,7 @@ public class Maven2Gradle {
     }
 
     private void descriptionForProject(MavenProject project, BuildScriptBuilder builder) {
-        if (StringUtils.isNotEmpty(project.getName())) {
+        if (TextUtil.isNotEmpty(project.getName())) {
             builder.propertyAssignment(null, "description", project.getName());
         }
     }
@@ -337,7 +337,7 @@ public class Maven2Gradle {
         //cleanup duplicates from parent
         for (org.apache.maven.model.Dependency mavenDependency : dependencies) {
             if (!duplicateDependency(mavenDependency, project, allProjects)) {
-                String scope = StringUtils.isNotEmpty(mavenDependency.getScope()) ? mavenDependency.getScope() : "compile";
+                String scope = TextUtil.isNotEmpty(mavenDependency.getScope()) ? mavenDependency.getScope() : "compile";
                 switch (scope) {
                     case "compile":
                         compileTimeScope.add(mavenDependency);
@@ -440,7 +440,7 @@ public class Maven2Gradle {
         }
 
         String encoding = (String) project.getProperties().get("project.build.sourceEncoding");
-        if (StringUtils.isNotEmpty(encoding)) {
+        if (TextUtil.isNotEmpty(encoding)) {
             builder.taskPropertyAssignment(null, "JavaCompile", "options.encoding", encoding);
             builder.taskPropertyAssignment(null, "Javadoc", "options.encoding", encoding);
         }

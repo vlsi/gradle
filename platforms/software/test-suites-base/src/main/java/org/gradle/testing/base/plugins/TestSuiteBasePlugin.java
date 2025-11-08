@@ -16,7 +16,6 @@
 
 package org.gradle.testing.base.plugins;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Incubating;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
@@ -30,6 +29,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.testing.base.TestSuite;
 import org.gradle.testing.base.TestingExtension;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * Base test suite functionality. Makes an extension named "testing" available to the project.
  *
@@ -62,7 +62,7 @@ public abstract class TestSuiteBasePlugin implements Plugin<Project> {
     }
 
     private static NamedDomainObjectProvider<ConsumableConfiguration> addTestResultsVariant(Project project, TestSuite suite) {
-        String variantName = String.format("testResultsElementsFor%s", StringUtils.capitalize(suite.getName()));
+        String variantName = String.format("testResultsElementsFor%s", TextUtil.capitalize(suite.getName()));
 
         return project.getConfigurations().consumable(variantName, conf -> {
             conf.setDescription("Binary results obtained from running all targets in the '" + suite.getName() + "' Test Suite.");

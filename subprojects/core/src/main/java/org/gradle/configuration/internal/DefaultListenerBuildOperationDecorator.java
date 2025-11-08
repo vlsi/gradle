@@ -18,7 +18,6 @@ package org.gradle.configuration.internal;
 
 import com.google.common.collect.ImmutableSet;
 import groovy.lang.Closure;
-import org.apache.commons.lang3.ClassUtils;
 import org.gradle.BuildListener;
 import org.gradle.api.Action;
 import org.gradle.api.ProjectEvaluationListener;
@@ -36,8 +35,11 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.gradle.configuration.internal.ExecuteListenerBuildOperationType.RESULT;
 
@@ -96,7 +98,7 @@ public class DefaultListenerBuildOperationDecorator implements ListenerBuildOper
         }
 
         Class<?> listenerClass = listener.getClass();
-        List<Class<?>> allInterfaces = ClassUtils.getAllInterfaces(listenerClass);
+        List<Class<?>> allInterfaces = getAllInterfaces(listenerClass);
         BuildOperationEmittingInvocationHandler handler = new BuildOperationEmittingInvocationHandler(application, registrationPoint, listener);
         return targetClass.cast(Proxy.newProxyInstance(listenerClass.getClassLoader(), allInterfaces.toArray(new Class[0]), handler));
     }
@@ -283,5 +285,17 @@ public class DefaultListenerBuildOperationDecorator implements ListenerBuildOper
         }
     }
 
+    private static List<Class<?>> getAllInterfaces(Class<?> clazz) {
+        Set<Class<?>> interfaces = new LinkedHashSet<>();
+        while (clazz != null) {
+            for (Class<?> iface : clazz.getInterfaces()) {
+                if (interfaces.add(iface)) {
+                    interfaces.addAll(getAllInterfaces(iface));
+                }
+            }
+            clazz = clazz.getSuperclass();
+        }
+        return new ArrayList<>(interfaces);
+    }
 
 }

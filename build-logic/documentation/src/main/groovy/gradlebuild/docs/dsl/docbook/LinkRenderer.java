@@ -19,7 +19,6 @@ import gradlebuild.docs.dsl.source.model.EnumConstantMetaData;
 import gradlebuild.docs.dsl.source.model.MethodMetaData;
 import gradlebuild.docs.dsl.source.model.TypeMetaData;
 import groovy.lang.GroovySystem;
-import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -27,6 +26,7 @@ import org.w3c.dom.Node;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.gradle.util.internal.TextUtil;
 public class LinkRenderer {
     private final Document document;
     private final DslDocModel model;
@@ -94,7 +94,7 @@ public class LinkRenderer {
             linkElement.setAttribute("url", String.format("https://docs.oracle.com/javase/%s/docs/api/%s.html", javaVersion,
                     className.replace(".", "/")));
             Element classNameElement = document.createElement("classname");
-            classNameElement.appendChild(document.createTextNode(StringUtils.substringAfterLast(className, ".")));
+            classNameElement.appendChild(document.createTextNode(TextUtil.substringAfterLast(className, ".")));
             linkElement.appendChild(classNameElement);
             return linkElement;
         }
@@ -104,7 +104,7 @@ public class LinkRenderer {
             linkElement.setAttribute("url", String.format("https://docs.groovy-lang.org/%s/html/gapi/%s.html", groovyVersion, className.replace(
                     ".", "/")));
             Element classNameElement = document.createElement("classname");
-            classNameElement.appendChild(document.createTextNode(StringUtils.substringAfterLast(className, ".")));
+            classNameElement.appendChild(document.createTextNode(TextUtil.substringAfterLast(className, ".")));
             linkElement.appendChild(classNameElement);
             return linkElement;
         }

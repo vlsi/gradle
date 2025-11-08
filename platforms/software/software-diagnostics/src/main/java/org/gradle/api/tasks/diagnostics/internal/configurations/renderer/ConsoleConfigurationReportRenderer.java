@@ -16,7 +16,6 @@
 
 package org.gradle.api.tasks.diagnostics.internal.configurations.renderer;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.GradleException;
 import org.gradle.api.tasks.diagnostics.internal.configurations.model.ConfigurationReportModel;
 import org.gradle.api.tasks.diagnostics.internal.configurations.model.ReportArtifact;
@@ -34,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * The {@link AbstractConfigurationReportRenderer} extension that can be used to render a {@link ConfigurationReportModel}
  * to the console with richly formatted output.
@@ -215,7 +215,7 @@ public final class ConsoleConfigurationReportRenderer extends AbstractConfigurat
 
     private void writeConfigurationNameHeader(ReportConfiguration config, String targetName) {
         printHeader(() -> {
-            output.style(StyledTextOutput.Style.Normal).text(StringUtils.capitalize(targetName) + " ");
+            output.style(StyledTextOutput.Style.Normal).text(TextUtil.capitalize(targetName) + " ");
             output.style(StyledTextOutput.Style.Header).text(config.getName());
             output.style(StyledTextOutput.Style.Info).println(buildIndicators(config));
         });
@@ -311,7 +311,7 @@ public final class ConsoleConfigurationReportRenderer extends AbstractConfigurat
     private void writeAttribute(Integer max, ReportAttribute attr, boolean includePrecedence) {
         indent(true);
         if (attr.getValue().isPresent()) {
-            valuePair(StringUtils.rightPad(attr.getName(), max), String.valueOf(attr.getValue().orElse("")));
+            valuePair(TextUtil.rightPad(attr.getName(), max), String.valueOf(attr.getValue().orElse("")));
         } else {
             output.style(StyledTextOutput.Style.Identifier).text(attr.getName());
             if (includePrecedence && attr.getDisambiguationPrecedence() != null) {
@@ -338,12 +338,12 @@ public final class ConsoleConfigurationReportRenderer extends AbstractConfigurat
         String type = artifact.getType();
         String classifier = artifact.getClassifier();
         output.style(StyledTextOutput.Style.Normal).text(artifact.getDisplayName());
-        if (StringUtils.isNotEmpty(type)) {
+        if (TextUtil.isNotEmpty(type)) {
             output.text(" (");
             output.withStyle(StyledTextOutput.Style.Description).text("artifactType");
             output.text(" = ");
             output.withStyle(StyledTextOutput.Style.Identifier).text(type);
-            if (StringUtils.isNotEmpty(classifier)) {
+            if (TextUtil.isNotEmpty(classifier)) {
                 output.text(", ");
                 output.withStyle(StyledTextOutput.Style.Description).text("classifier");
                 output.text(" = ");
@@ -441,7 +441,7 @@ public final class ConsoleConfigurationReportRenderer extends AbstractConfigurat
     }
 
     private void indent(boolean bullet) {
-        output.text(StringUtils.repeat("    ", depth));
+        output.text(TextUtil.repeat("    ", depth));
         if (depth > 0 && bullet) {
             output.withStyle(StyledTextOutput.Style.Normal).text("- ");
         }

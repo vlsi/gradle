@@ -17,7 +17,6 @@
 package org.gradle.jvm.application.tasks;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.ConventionTask;
 import org.gradle.api.internal.plugins.AppEntryPoint;
@@ -53,6 +52,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * Creates start scripts for launching JVM applications.
  * <p>
@@ -363,7 +363,7 @@ public abstract class CreateStartScripts extends ConventionTask {
         generator.setExitEnvironmentVar(getExitEnvironmentVar());
         generator.setClasspath(getRelativePath(javaModuleDetector.inferClasspath(mainModule.isPresent(), getClasspath())));
         generator.setModulePath(getRelativePath(javaModuleDetector.inferModulePath(mainModule.isPresent(), getClasspath())));
-        if (StringUtils.isEmpty(getExecutableDir())) {
+        if (TextUtil.isEmpty(getExecutableDir())) {
             generator.setScriptRelPath(getUnixScript().getName());
         } else {
             generator.setScriptRelPath(getExecutableDir() + "/" + getUnixScript().getName());

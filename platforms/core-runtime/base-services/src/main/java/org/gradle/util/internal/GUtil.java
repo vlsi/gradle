@@ -16,7 +16,6 @@
 
 package org.gradle.util.internal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.specs.Spec;
 import org.gradle.internal.Cast;
 import org.gradle.internal.Factory;
@@ -315,18 +314,18 @@ public class GUtil {
                 continue;
             }
             if (lower && first) {
-                chunk = StringUtils.uncapitalize(chunk);
+                chunk = TextUtil.uncapitalize(chunk);
                 first = false;
             } else {
-                chunk = StringUtils.capitalize(chunk);
+                chunk = TextUtil.capitalize(chunk);
             }
             builder.append(chunk);
         }
         String rest = string.subSequence(pos, string.length()).toString();
         if (lower && first) {
-            rest = StringUtils.uncapitalize(rest);
+            rest = TextUtil.uncapitalize(rest);
         } else {
-            rest = StringUtils.capitalize(rest);
+            rest = TextUtil.capitalize(rest);
         }
         builder.append(rest);
         return builder.toString();

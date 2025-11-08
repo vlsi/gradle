@@ -16,13 +16,13 @@
 
 package org.gradle.api.internal.plugins;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Rule;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.tasks.TaskContainer;
 
+import org.gradle.util.internal.TextUtil;
 public class BuildConfigurationRule implements Rule {
 
     public static final String PREFIX = "build";
@@ -43,7 +43,7 @@ public class BuildConfigurationRule implements Rule {
     @Override
     public void apply(String taskName) {
         if (taskName.startsWith(PREFIX)) {
-            String configurationName = StringUtils.uncapitalize(taskName.substring(PREFIX.length()));
+            String configurationName = TextUtil.uncapitalize(taskName.substring(PREFIX.length()));
             Configuration configuration = configurations.findByName(configurationName);
 
             if (configuration != null) {

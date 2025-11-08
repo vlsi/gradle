@@ -17,7 +17,6 @@
 package org.gradle.internal.reflect;
 
 import com.google.common.reflect.TypeToken;
-import org.apache.commons.lang3.reflect.MethodUtils;
 import org.gradle.internal.UncheckedException;
 import org.gradle.util.internal.CollectionUtils;
 import org.jspecify.annotations.Nullable;
@@ -25,6 +24,7 @@ import org.jspecify.annotations.Nullable;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -102,11 +102,87 @@ public class JavaPropertyReflectionUtil {
     @Nullable
     public static PropertyMutator writeablePropertyIfExists(Class<?> target, String property, @Nullable Class<?> valueType) throws NoSuchPropertyException {
         String setterName = toMethodName("set", property);
-        Method method = MethodUtils.getMatchingAccessibleMethod(target, setterName, new Class<?>[]{valueType});
+        Method method = getMatchingAccessibleMethod(target, setterName, new Class<?>[]{valueType});
         if (method != null) {
             return new MethodBackedPropertyMutator(property, method);
         }
         return null;
+    }
+
+    /**
+     * Gets the accessible method matching the given name and parameter types.
+     * Similar to Apache Commons Lang's MethodUtils.getMatchingAccessibleMethod().
+     */
+    @Nullable
+    private static Method getMatchingAccessibleMethod(Class<?> clazz, String methodName, Class<?>[] parameterTypes) {
+        try {
+            Method method = clazz.getMethod(methodName, parameterTypes);
+            if (Modifier.isPublic(method.getModifiers())) {
+                return method;
+            }
+        } catch (NoSuchMethodException e) {
+            // Try to find a compatible method with type assignability
+        }
+
+        // Search for a compatible method (handles null parameters and assignable types)
+        Method[] methods = clazz.getMethods();
+        for (Method method : methods) {
+            if (!method.getName().equals(methodName)) {
+                continue;
+            }
+            Class<?>[] methodParamTypes = method.getParameterTypes();
+            if (methodParamTypes.length != parameterTypes.length) {
+                continue;
+            }
+            boolean compatible = true;
+            for (int i = 0; i < parameterTypes.length; i++) {
+                if (parameterTypes[i] == null) {
+                    // null can be assigned to any reference type
+                    if (methodParamTypes[i].isPrimitive()) {
+                        compatible = false;
+                        break;
+                    }
+                } else if (!isAssignable(methodParamTypes[i], parameterTypes[i])) {
+                    compatible = false;
+                    break;
+                }
+            }
+            if (compatible && Modifier.isPublic(method.getModifiers())) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Checks if a value of {@code from} type can be assigned to {@code to} type.
+     */
+    private static boolean isAssignable(Class<?> to, Class<?> from) {
+        if (to.isAssignableFrom(from)) {
+            return true;
+        }
+        // Handle primitive types and their wrappers
+        if (to.isPrimitive()) {
+            if (to == int.class && (from == Integer.class)) return true;
+            if (to == long.class && (from == Long.class)) return true;
+            if (to == boolean.class && (from == Boolean.class)) return true;
+            if (to == byte.class && (from == Byte.class)) return true;
+            if (to == char.class && (from == Character.class)) return true;
+            if (to == double.class && (from == Double.class)) return true;
+            if (to == float.class && (from == Float.class)) return true;
+            if (to == short.class && (from == Short.class)) return true;
+        }
+        if (from.isPrimitive()) {
+            if (from == int.class && (to == Integer.class)) return true;
+            if (from == long.class && (to == Long.class)) return true;
+            if (from == boolean.class && (to == Boolean.class)) return true;
+            if (from == byte.class && (to == Byte.class)) return true;
+            if (from == char.class && (to == Character.class)) return true;
+            if (from == double.class && (to == Double.class)) return true;
+            if (from == float.class && (to == Float.class)) return true;
+            if (from == short.class && (to == Short.class)) return true;
+        }
+        return false;
     }
 
     private static String toMethodName(String prefix, String propertyName) {

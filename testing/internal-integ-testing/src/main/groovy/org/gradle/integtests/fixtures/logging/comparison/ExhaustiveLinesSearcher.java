@@ -16,8 +16,6 @@
 
 package org.gradle.integtests.fixtures.logging.comparison;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +25,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.gradle.util.internal.TextUtil;
 public class ExhaustiveLinesSearcher {
     private final boolean useUnifiedDiff;
 
@@ -109,7 +108,7 @@ public class ExhaustiveLinesSearcher {
             String expectedLine = expectedLines.get(expectedIdx);
             for (int actualIdx = 0; actualIdx < actualLines.size(); actualIdx++) {
                 String actualLine = actualLines.get(actualIdx);
-                if (Objects.equals(expectedLine, actualLine) && !StringUtils.isEmpty(expectedLine)) {
+                if (Objects.equals(expectedLine, actualLine) && !TextUtil.isEmpty(expectedLine)) {
                     result.computeIfAbsent(expectedIdx, matches -> new ArrayList<>()).add(actualIdx);
                 }
             }

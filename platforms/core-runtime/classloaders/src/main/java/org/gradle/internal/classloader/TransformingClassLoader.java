@@ -17,7 +17,6 @@
 package org.gradle.internal.classloader;
 
 import com.google.common.io.ByteStreams;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.GradleException;
 import org.gradle.internal.classpath.ClassPath;
 import org.jspecify.annotations.Nullable;
@@ -29,6 +28,7 @@ import java.security.CodeSource;
 import java.security.cert.Certificate;
 import java.util.Collection;
 
+import org.gradle.util.internal.TextUtil;
 public abstract class TransformingClassLoader extends VisitableURLClassLoader {
     static {
         try {
@@ -75,7 +75,7 @@ public abstract class TransformingClassLoader extends VisitableURLClassLoader {
             throw new ClassNotFoundException(name);
         }
 
-        String packageName = StringUtils.substringBeforeLast(name, ".");
+        String packageName = TextUtil.substringBeforeLast(name, ".");
         @SuppressWarnings("deprecation")
         Package p = getPackage(packageName);
         if (p == null) {

@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableSet
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
-import org.apache.commons.lang3.StringUtils
 import org.gradle.api.internal.GradleInternal
 import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.internal.tasks.NodeExecutionContext
@@ -639,7 +638,7 @@ fun asBuildOperation(displayName: String, contextPath: Path, action: () -> Unit)
             try {
                 action.invoke()
             } catch (e: Exception) {
-                throw OperationException("Exception while ${StringUtils.uncapitalize(displayName)}: ${e.message}", e)
+                throw OperationException("Exception while ${TextUtil.uncapitalize(displayName)}: ${e.message}", e)
             }
         }
 

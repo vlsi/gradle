@@ -16,8 +16,6 @@
 
 package org.gradle.internal.resource.transport.http;
 
-import org.apache.commons.lang3.NotImplementedException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -75,7 +73,7 @@ public class FakeKeyStore extends KeyStoreSpi {
 
     @Override
     public void engineSetKeyEntry(String alias, byte[] key, Certificate[] chain) throws KeyStoreException {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -125,7 +123,7 @@ public class FakeKeyStore extends KeyStoreSpi {
 
     @Override
     public String engineGetCertificateAlias(Certificate cert) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     @Override

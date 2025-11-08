@@ -19,7 +19,6 @@ package org.gradle.api.internal.artifacts;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
-import org.apache.commons.lang3.ObjectUtils;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.ResolvedArtifact;
@@ -40,6 +39,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+
+import static java.util.Comparator.nullsFirst;
+import static java.util.Comparator.naturalOrder;
 
 public class DefaultResolvedDependency implements ResolvedDependency {
     private final Set<DefaultResolvedDependency> children = new LinkedHashSet<>();
@@ -202,17 +204,19 @@ public class DefaultResolvedDependency implements ResolvedDependency {
     }
 
     private static class ResolvedArtifactComparator implements Comparator<ResolvedArtifact> {
+        private static final Comparator<String> NULL_SAFE_STRING_COMPARATOR = nullsFirst(naturalOrder());
+
         @Override
         public int compare(ResolvedArtifact artifact1, ResolvedArtifact artifact2) {
             int diff = artifact1.getName().compareTo(artifact2.getName());
             if (diff != 0) {
                 return diff;
             }
-            diff = ObjectUtils.compare(artifact1.getClassifier(), artifact2.getClassifier());
+            diff = NULL_SAFE_STRING_COMPARATOR.compare(artifact1.getClassifier(), artifact2.getClassifier());
             if (diff != 0) {
                 return diff;
             }
-            diff = ObjectUtils.compare(artifact1.getExtension(), artifact2.getExtension());
+            diff = NULL_SAFE_STRING_COMPARATOR.compare(artifact1.getExtension(), artifact2.getExtension());
             if (diff != 0) {
                 return diff;
             }

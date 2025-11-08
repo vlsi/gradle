@@ -18,7 +18,6 @@ package org.gradle.internal.resource.transfer;
 
 import com.google.common.io.Files;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.internal.artifacts.ivyservice.ArtifactCacheLockingAccessCoordinator;
 import org.gradle.api.internal.artifacts.ivyservice.resolutionstrategy.ExternalResourceCachePolicy;
 import org.gradle.api.internal.file.temp.TemporaryFileProvider;
@@ -48,6 +47,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import org.gradle.util.internal.TextUtil;
 public class DefaultCacheAwareExternalResourceAccessor implements CacheAwareExternalResourceAccessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCacheAwareExternalResourceAccessor.class);
@@ -156,7 +156,7 @@ public class DefaultCacheAwareExternalResourceAccessor implements CacheAwareExte
             ExternalResourceReadResult<HashCode> result = resource.withContentIfPresent(inputStream -> {
                 String sha = IOUtils.toString(inputStream, StandardCharsets.US_ASCII);
                 // Servers may return SHA-1 with leading zeros stripped
-                sha = StringUtils.leftPad(sha, Hashing.sha1().getHexDigits(), '0');
+                sha = TextUtil.leftPad(sha, Hashing.sha1().getHexDigits(), '0');
                 return HashCode.fromString(sha);
             });
             return result == null ? null : result.getResult();

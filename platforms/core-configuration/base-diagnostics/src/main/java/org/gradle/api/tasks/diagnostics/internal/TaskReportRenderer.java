@@ -16,7 +16,6 @@
 
 package org.gradle.api.tasks.diagnostics.internal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.initialization.BuildClientMetaData;
 import org.gradle.internal.logging.text.StyledTextOutput;
 import org.gradle.util.internal.CollectionUtils;
@@ -24,6 +23,7 @@ import org.gradle.util.internal.GUtil;
 
 import java.util.List;
 
+import org.gradle.util.internal.TextUtil;
 import static org.gradle.internal.logging.text.StyledTextOutput.Style.*;
 
 /**
@@ -53,7 +53,7 @@ public class TaskReportRenderer extends TextReportRenderer {
     @Override
     protected String createHeader(ProjectDetails project) {
         String header = super.createHeader(project);
-        return "Tasks runnable from " + StringUtils.uncapitalize(header);
+        return "Tasks runnable from " + TextUtil.uncapitalize(header);
     }
 
     public void showDetail(boolean detail) {
@@ -80,7 +80,7 @@ public class TaskReportRenderer extends TextReportRenderer {
         if (!GUtil.isTrue(taskGroup)) {
             addSubheading("Tasks");
         } else {
-            addSubheading(StringUtils.capitalize(taskGroup) + " tasks");
+            addSubheading(TextUtil.capitalize(taskGroup) + " tasks");
         }
         currentProjectHasTasks = true;
     }

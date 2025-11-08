@@ -16,7 +16,6 @@
 package org.gradle.api.internal.artifacts.ivyservice;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.internal.DocumentationRegistry;
 import org.gradle.api.internal.cache.CacheConfigurationsInternal;
 import org.gradle.api.logging.Logger;
@@ -40,6 +39,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import org.gradle.util.internal.TextUtil;
 public class DefaultArtifactCaches implements ArtifactCachesProvider {
     private final static Logger LOGGER = Logging.getLogger(DefaultArtifactCaches.class);
 
@@ -60,7 +60,7 @@ public class DefaultArtifactCaches implements ArtifactCachesProvider {
             return new WritableArtifactCacheLockingAccessCoordinator(unscopedCacheBuilderFactory, writableCacheMetadata, params.getFileAccessTimeJournal(), params.getUsedGradleVersions(), cacheConfigurations, cacheCleanupStrategyFactory);
         });
         String roCache = System.getenv(READONLY_CACHE_ENV_VAR);
-        if (StringUtils.isNotEmpty(roCache)) {
+        if (TextUtil.isNotEmpty(roCache)) {
             IncubationLogger.incubatingFeatureUsed("Shared read-only dependency cache");
             File baseDir = validateReadOnlyCache(documentationRegistry, new File(roCache).getAbsoluteFile());
             if (baseDir != null) {

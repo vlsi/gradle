@@ -16,10 +16,10 @@
 
 package org.gradle.internal.resource.transport.http;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.gradle.util.internal.TextUtil;
 public abstract class JavaSystemPropertiesProxySettings implements HttpProxySettings {
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaSystemPropertiesProxySettings.class);
 
@@ -38,7 +38,7 @@ public abstract class JavaSystemPropertiesProxySettings implements HttpProxySett
     JavaSystemPropertiesProxySettings(String propertyPrefix, int defaultPort, String proxyHost, String proxyPortString, String proxyUser, String proxyPassword) {
         this.propertyPrefix = propertyPrefix;
         this.defaultPort = defaultPort;
-        if (StringUtils.isBlank(proxyHost)) {
+        if (TextUtil.isBlank(proxyHost)) {
             this.proxy = null;
         } else {
             this.proxy = new HttpProxy(proxyHost, initProxyPort(proxyPortString), proxyUser, proxyPassword);
@@ -46,7 +46,7 @@ public abstract class JavaSystemPropertiesProxySettings implements HttpProxySett
     }
 
     private int initProxyPort(String proxyPortString) {
-        if (StringUtils.isBlank(proxyPortString)) {
+        if (TextUtil.isBlank(proxyPortString)) {
             return defaultPort;
         }
         try {

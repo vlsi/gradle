@@ -23,8 +23,8 @@ import java.net.URI;
 
 import static java.lang.Character.isJavaIdentifierPart;
 import static java.lang.Character.isJavaIdentifierStart;
-import static org.apache.commons.lang3.StringUtils.substringAfterLast;
-import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
+import static org.gradle.util.internal.TextUtil.substringAfterLast;
+import static org.gradle.util.internal.TextUtil.substringBeforeLast;
 import static org.gradle.internal.hash.Hashing.hashString;
 
 /**

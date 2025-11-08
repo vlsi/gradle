@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.artifacts.ModuleIdentifier;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.component.ComponentSelector;
@@ -67,6 +66,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.gradle.util.internal.TextUtil;
 /**
  * Represents a node in the dependency graph.
  */
@@ -853,7 +853,7 @@ public class NodeState implements DependencyGraphNode {
     private Set<ModuleIdentifier> maybeCollectStrictVersions(@Nullable Set<ModuleIdentifier> constraintsSet, DependencyState dependencyState) {
         if (dependencyState.getDependency().getSelector() instanceof ModuleComponentSelector) {
             ModuleComponentSelector selector = (ModuleComponentSelector) dependencyState.getDependency().getSelector();
-            if (!StringUtils.isEmpty(selector.getVersionConstraint().getStrictVersion())) {
+            if (!TextUtil.isEmpty(selector.getVersionConstraint().getStrictVersion())) {
                 if (constraintsSet == null) {
                     constraintsSet = new HashSet<>();
                 }

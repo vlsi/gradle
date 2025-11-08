@@ -17,12 +17,12 @@
 package org.gradle.api.internal.tasks.properties;
 
 import com.google.common.collect.ImmutableSortedSet;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.services.BuildService;
 import org.gradle.internal.properties.PropertyValue;
 import org.gradle.internal.properties.PropertyVisitor;
 import org.jspecify.annotations.Nullable;
 
+import org.gradle.util.internal.TextUtil;
 public class GetServiceReferencesVisitor implements PropertyVisitor {
     private final ImmutableSortedSet.Builder<ServiceReferenceSpec> serviceReferences = ImmutableSortedSet.naturalOrder();
 

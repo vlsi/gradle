@@ -15,7 +15,6 @@
  */
 package org.gradle.testing.jacoco.plugins;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -54,6 +53,7 @@ import org.gradle.testing.jacoco.tasks.JacocoReport;
 import javax.inject.Inject;
 import java.io.File;
 
+import org.gradle.util.internal.TextUtil;
 import static org.gradle.api.internal.lambdas.SerializableLambdas.action;
 
 /**
@@ -131,7 +131,7 @@ public abstract class JacocoPlugin implements Plugin<Project> {
     }
 
     private static NamedDomainObjectProvider<ConsumableConfiguration> createCoverageDataVariant(ProjectInternal project, JvmTestSuite suite) {
-        String variantName = String.format("coverageDataElementsFor%s", StringUtils.capitalize(suite.getName()));
+        String variantName = String.format("coverageDataElementsFor%s", TextUtil.capitalize(suite.getName()));
 
         return project.getConfigurations().consumable(variantName, conf -> {
             conf.setDescription("Binary results containing Jacoco test coverage for all targets in the '" + suite.getName() + "' Test Suite.");
@@ -232,7 +232,7 @@ public abstract class JacocoPlugin implements Plugin<Project> {
     private void addDefaultReportTask(final JacocoPluginExtension extension, final TaskProvider<? extends Task> testTaskProvider) {
         final String testTaskName = testTaskProvider.getName();
         project.getTasks().register(
-            "jacoco" + StringUtils.capitalize(testTaskName) + "Report",
+            "jacoco" + TextUtil.capitalize(testTaskName) + "Report",
             JacocoReport.class,
             reportTask -> {
                 reportTask.setGroup(LifecycleBasePlugin.VERIFICATION_GROUP);
@@ -257,7 +257,7 @@ public abstract class JacocoPlugin implements Plugin<Project> {
 
     private void addDefaultCoverageVerificationTask(final TaskProvider<? extends Task> testTaskProvider) {
         project.getTasks().register(
-            "jacoco" + StringUtils.capitalize(testTaskProvider.getName()) + "CoverageVerification",
+            "jacoco" + TextUtil.capitalize(testTaskProvider.getName()) + "CoverageVerification",
             JacocoCoverageVerification.class,
             coverageVerificationTask -> {
                 coverageVerificationTask.setGroup(LifecycleBasePlugin.VERIFICATION_GROUP);

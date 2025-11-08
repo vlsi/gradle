@@ -16,8 +16,8 @@
 
 package org.gradle.internal.xml;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.internal.SystemProperties;
+import org.gradle.util.internal.TextUtil;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -258,11 +258,11 @@ public class SimpleMarkupWriter extends Writer {
         }
 
         writeRaw("<!--");
-        if (!StringUtils.isBlank(comment.substring(0, 1))) {
+        if (!TextUtil.isBlank(comment.substring(0, 1))) {
             writeRaw(" ");
         }
         writeSafeCharacters(comment);
-        if (!StringUtils.isBlank(comment.substring(comment.length() - 1))) {
+        if (!TextUtil.isBlank(comment.substring(comment.length() - 1))) {
             writeRaw(" ");
         }
         writeRaw("-->");

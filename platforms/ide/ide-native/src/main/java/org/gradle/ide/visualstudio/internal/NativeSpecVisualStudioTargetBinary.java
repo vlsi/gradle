@@ -16,7 +16,6 @@
 
 package org.gradle.ide.visualstudio.internal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Transformer;
 import org.gradle.api.file.FileCollection;
@@ -48,6 +47,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.gradle.util.internal.TextUtil;
 public class NativeSpecVisualStudioTargetBinary implements VisualStudioTargetBinary {
     private final NativeBinarySpecInternal binary;
 
@@ -282,7 +282,7 @@ public class NativeSpecVisualStudioTargetBinary implements VisualStudioTargetBin
                 if (builder.length() == 0) {
                     builder.append(component);
                 } else {
-                    builder.append(StringUtils.capitalize(component));
+                    builder.append(TextUtil.capitalize(component));
                 }
             }
         }

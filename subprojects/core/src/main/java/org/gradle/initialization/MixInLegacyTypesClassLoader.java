@@ -20,7 +20,6 @@ import groovy.lang.GroovyObject;
 import groovy.lang.GroovySystem;
 import groovy.lang.MetaClass;
 import groovy.lang.MetaClassRegistry;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.internal.classloader.TransformingClassLoader;
 import org.gradle.internal.classloader.VisitableURLClassLoader;
 import org.gradle.internal.classpath.ClassPath;
@@ -46,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.gradle.util.internal.TextUtil;
 import static org.gradle.internal.classpath.transforms.CommonTypes.OBJECT_TYPE;
 import static org.gradle.internal.classpath.transforms.CommonTypes.STRING_TYPE;
 
@@ -334,7 +334,7 @@ public class MixInLegacyTypesClassLoader extends TransformingClassLoader {
         }
 
         private void addBooleanGetGetter(String booleanField) {
-            MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC, "get" + StringUtils.capitalize(booleanField), "()Z", null, null);
+            MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC, "get" + TextUtil.capitalize(booleanField), "()Z", null, null);
             mv.visitCode();
             Label l0 = new Label();
             mv.visitLabel(l0);
