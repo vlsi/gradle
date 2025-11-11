@@ -1121,4 +1121,28 @@ trait ValidationMessageChecker {
             super(checker)
         }
     }
+
+    DisallowedClosureParameter disallowedClosureParameterConfig(@DelegatesTo(value = DisallowedClosureParameter, strategy = Closure.DELEGATE_FIRST) Closure<?> spec) {
+        def config = display(DisallowedClosureParameter, 'disallowed_closure_parameter', spec)
+        config
+    }
+
+    static class DisallowedClosureParameter extends ValidationMessageDisplayConfiguration<DisallowedClosureParameter> {
+        String methodName
+        String paramType
+
+        DisallowedClosureParameter(ValidationMessageChecker checker) {
+            super(checker)
+        }
+
+        DisallowedClosureParameter method(String methodName) {
+            this.methodName = methodName
+            this
+        }
+
+        DisallowedClosureParameter paramType(String paramType) {
+            this.paramType = paramType
+            this
+        }
+    }
 }

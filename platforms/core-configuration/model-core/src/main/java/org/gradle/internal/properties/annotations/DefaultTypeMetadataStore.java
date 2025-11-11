@@ -37,6 +37,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
@@ -45,6 +47,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.joining;
 
 import static org.gradle.api.problems.Severity.ERROR;
 import static org.gradle.internal.deprecation.Documentation.userManual;
@@ -114,9 +118,89 @@ public class DefaultTypeMetadataStore implements TypeMetadataStore {
             }
         }
 
+        // Validate public methods for Closure and Kotlin function type parameters
+        validatePublicMethodParameters(publicType, validationContext);
+
         ImmutableSet<PropertyMetadata> effectiveProperties = getEffectiveProperties(annotationMetadata, validationContext);
         ImmutableSet<FunctionMetadata> effectiveFunctions = getEffectiveFunctions(annotationMetadata, validationContext);
         return new DefaultTypeMetadata(publicType, effectiveProperties, effectiveFunctions, validationContext, propertyAnnotationHandlers, functionAnnotationHandlers, annotationMetadata);
+    }
+
+    private static final String DISALLOWED_CLOSURE_PARAMETER = "DISALLOWED_CLOSURE_PARAMETER";
+
+    private void validatePublicMethodParameters(Class<?> type, ReplayingTypeValidationContext validationContext) {
+        Method[] methods = type.getDeclaredMethods();
+        for (Method method : methods) {
+            int modifiers = method.getModifiers();
+            // Only validate public, non-static methods
+            if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers)) {
+                continue;
+            }
+            // Skip synthetic and bridge methods
+            if (method.isSynthetic() || method.isBridge()) {
+                continue;
+            }
+
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            for (int i = 0; i < parameterTypes.length; i++) {
+                Class<?> paramType = parameterTypes[i];
+                String paramTypeName = paramType.getName();
+
+                // Check for groovy.lang.Closure
+                if ("groovy.lang.Closure".equals(paramTypeName)) {
+                    reportDisallowedParameterType(validationContext, type, method, i, "Closure", "groovy.lang.Closure");
+                }
+                // Check for Kotlin function types (they extend kotlin.jvm.functions.FunctionN)
+                else if (isKotlinFunctionType(paramType)) {
+                    reportDisallowedParameterType(validationContext, type, method, i, "Kotlin function type", paramType.getName());
+                }
+            }
+        }
+    }
+
+    private boolean isKotlinFunctionType(Class<?> type) {
+        // Kotlin function types implement interfaces like kotlin.jvm.functions.FunctionN
+        // or have names like kotlin.jvm.functions.Function0, Function1, etc.
+        String typeName = type.getName();
+        if (typeName.startsWith("kotlin.jvm.functions.Function")) {
+            return true;
+        }
+        // Also check if it's an extension function type (kotlin.ExtensionFunctionN)
+        if (typeName.startsWith("kotlin.jvm.functions.") && typeName.contains("Function")) {
+            return true;
+        }
+        return false;
+    }
+
+    private void reportDisallowedParameterType(
+        ReplayingTypeValidationContext validationContext,
+        Class<?> type,
+        Method method,
+        int paramIndex,
+        String displayName,
+        String actualTypeName
+    ) {
+        String methodSignature = formatMethodSignature(method);
+        validationContext.visitTypeProblem(problem ->
+            problem.withAnnotationType(type)
+                .id(TextUtil.screamingSnakeToKebabCase(DISALLOWED_CLOSURE_PARAMETER), "Disallowed Closure or function type parameter", GradleCoreProblemGroup.validation().type())
+                .contextualLabel(String.format("method '%s()' uses parameter type '%s' which is not recommended for public APIs",
+                    method.getName(), displayName))
+                .documentedAt(userManual("validation_problems", DISALLOWED_CLOSURE_PARAMETER.toLowerCase(Locale.ROOT)))
+                .severity(ERROR)
+                .details(String.format("Method '%s' uses %s (%s) for parameter at index %d. This makes the method harder to use in languages other than Groovy/Kotlin",
+                    methodSignature, displayName, actualTypeName, paramIndex))
+                .solution("Use 'org.gradle.api.Action<T>' instead")
+                .solution("Use 'org.gradle.api.Transformer<OUT, IN>' for functions that return a value")
+        );
+    }
+
+    private String formatMethodSignature(Method method) {
+        return method.getName() + "(" +
+            Arrays.stream(method.getParameterTypes())
+                .map(Class::getSimpleName)
+                .collect(joining(", ")) +
+            ")";
     }
 
     @NonNull

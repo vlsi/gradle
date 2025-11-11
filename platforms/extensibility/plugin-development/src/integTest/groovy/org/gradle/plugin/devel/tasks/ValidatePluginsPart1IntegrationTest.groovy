@@ -747,5 +747,73 @@ class ValidatePluginsPart1IntegrationTest extends AbstractIntegrationSpec implem
         "InputFile"  | _
         "InputFiles" | _
     }
+
+    def "detects Closure parameter in public method"() {
+        buildFile << """
+            dependencies {
+                implementation localGroovy()
+            }
+        """
+
+        groovyTaskSource << """
+            import org.gradle.api.*
+            import org.gradle.api.tasks.*
+            import org.gradle.work.*
+            import groovy.lang.Closure
+
+            @DisableCachingByDefault(because = "test task")
+            class MyTask extends DefaultTask {
+                @Input
+                String input = "value"
+
+                // Public method with Closure parameter - should fail validation
+                void configure(Closure closure) {
+                    closure.call()
+                }
+
+                // Public method with multiple parameters including Closure - should fail validation
+                void configureWithContext(String name, Closure closure) {
+                    closure.call(name)
+                }
+
+                @TaskAction
+                void execute() {
+                    println input
+                }
+            }
+        """
+
+        expect:
+        assertValidationFailsWith([
+            error(disallowedClosureParameterConfig {
+                type('MyTask').method('configure').paramType('Closure')
+            }, 'validation_problems', 'disallowed_closure_parameter'),
+            error(disallowedClosureParameterConfig {
+                type('MyTask').method('configureWithContext').paramType('Closure')
+            }, 'validation_problems', 'disallowed_closure_parameter')
+        ])
+
+        and:
+        verifyAll(receivedProblem(0)) {
+            fqid == 'validation:type-validation:disallowed-closure-parameter'
+            contextualLabel == "Type 'MyTask' method 'configure()' uses parameter type 'Closure' which is not recommended for public APIs"
+            details.contains("Closure")
+            details.contains("groovy.lang.Closure")
+            solutions == [
+                "Use 'org.gradle.api.Action<T>' instead",
+                "Use 'org.gradle.api.Transformer<OUT, IN>' for functions that return a value"
+            ]
+        }
+        verifyAll(receivedProblem(1)) {
+            fqid == 'validation:type-validation:disallowed-closure-parameter'
+            contextualLabel == "Type 'MyTask' method 'configureWithContext()' uses parameter type 'Closure' which is not recommended for public APIs"
+            details.contains("Closure")
+            details.contains("groovy.lang.Closure")
+            solutions == [
+                "Use 'org.gradle.api.Action<T>' instead",
+                "Use 'org.gradle.api.Transformer<OUT, IN>' for functions that return a value"
+            ]
+        }
+    }
 }
 
