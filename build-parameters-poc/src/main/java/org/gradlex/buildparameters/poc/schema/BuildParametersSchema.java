@@ -21,12 +21,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The settings-time DSL and schema model. One instance is the root; nested {@link #group} calls create
- * child instances. The schema is the <em>shape</em> (names + types + defaults) of the build parameters and
- * is fully known by the end of settings evaluation — exactly like a version catalog.
+ * The settings-time DSL and schema model.
  *
- * <p>Each node knows the simple name of the accessor class to generate for it and the fully-qualified
- * (dotted) Gradle property key for each leaf.</p>
+ * <p>The model separates a group <em>type</em> ({@link GroupType}, which becomes one generated class) from
+ * its <em>mount points</em> ({@link Mount}). An inline {@code group("database") { ... }} creates an
+ * anonymous type used once; a {@code groupType("JavaDistribution") { ... }} creates a <em>reusable</em>
+ * type that can be mounted at several places via {@code group("buildJvm", javaDistribution)}. Because the
+ * generated classes are prefix-parameterized (see {@code AsmAccessorGenerator}), the same type can be
+ * reused at multiple mounts and still read distinct, correctly-prefixed properties.</p>
+ *
+ * <p>This same class is the builder for both the root and every nested/reusable type; the {@link #type}
+ * field is the type currently being configured.</p>
  */
 public class BuildParametersSchema {
 
@@ -35,25 +40,20 @@ public class BuildParametersSchema {
     /** Simple name of the generated root accessor class. */
     public static final String ROOT_SIMPLE_NAME = "BuildParameters";
 
+    /** A leaf parameter: a getter on the enclosing group's generated class. */
     public static final class Leaf {
         private final String name;
-        private final String key;
         private final ParameterType type;
         private final Object defaultValue;
 
-        Leaf(String name, String key, ParameterType type, Object defaultValue) {
+        Leaf(String name, ParameterType type, Object defaultValue) {
             this.name = name;
-            this.key = key;
             this.type = type;
             this.defaultValue = defaultValue;
         }
 
         public String getName() {
             return name;
-        }
-
-        public String getKey() {
-            return key;
         }
 
         public ParameterType getType() {
@@ -65,93 +65,135 @@ public class BuildParametersSchema {
         }
     }
 
-    private final String prefix; // "" for root, "database", "database.replica", ...
-    private final String localName; // last path segment, e.g. "replica"; "" for root
-    private final String simpleClassName;
-    private final List<Leaf> leaves = new ArrayList<>();
-    private final List<BuildParametersSchema> groups = new ArrayList<>();
+    /** A mount: exposes a {@link GroupType} under {@code name} on the enclosing group. */
+    public static final class Mount {
+        private final String name;
+        private final GroupType type;
+
+        Mount(String name, GroupType type) {
+            this.name = name;
+            this.type = type;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public GroupType getType() {
+            return type;
+        }
+    }
+
+    /** One generated class: a set of leaves and a set of nested mounts. May be reused at several mounts. */
+    public static final class GroupType {
+        private final String simpleClassName;
+        private final boolean root;
+        private final List<Leaf> leaves = new ArrayList<>();
+        private final List<Mount> mounts = new ArrayList<>();
+
+        GroupType(String simpleClassName, boolean root) {
+            this.simpleClassName = simpleClassName;
+            this.root = root;
+        }
+
+        public String getSimpleClassName() {
+            return simpleClassName;
+        }
+
+        public String getFqcn() {
+            return GENERATED_PACKAGE + "." + simpleClassName;
+        }
+
+        public boolean isRoot() {
+            return root;
+        }
+
+        public List<Leaf> getLeaves() {
+            return leaves;
+        }
+
+        public List<Mount> getMounts() {
+            return mounts;
+        }
+    }
+
+    private final GroupType type;
+    private final List<GroupType> registry;
 
     public BuildParametersSchema() {
-        this("", "", ROOT_SIMPLE_NAME);
+        this.registry = new ArrayList<>();
+        this.type = new GroupType(ROOT_SIMPLE_NAME, true);
+        registry.add(type);
     }
 
-    private BuildParametersSchema(String prefix, String localName, String simpleClassName) {
-        this.prefix = prefix;
-        this.localName = localName;
-        this.simpleClassName = simpleClassName;
+    private BuildParametersSchema(GroupType type, List<GroupType> registry) {
+        this.type = type;
+        this.registry = registry;
     }
 
-    // --- DSL -----------------------------------------------------------------------------------------
+    // --- DSL: leaves ---------------------------------------------------------------------------------
 
     public void string(String name) {
-        string(name, null);
+        type.leaves.add(new Leaf(name, ParameterType.STRING, null));
     }
 
     public void string(String name, String defaultValue) {
-        leaves.add(new Leaf(name, key(name), ParameterType.STRING, defaultValue));
+        type.leaves.add(new Leaf(name, ParameterType.STRING, defaultValue));
     }
 
     public void integer(String name) {
-        leaves.add(new Leaf(name, key(name), ParameterType.INTEGER, null));
+        type.leaves.add(new Leaf(name, ParameterType.INTEGER, null));
     }
 
     public void integer(String name, int defaultValue) {
-        leaves.add(new Leaf(name, key(name), ParameterType.INTEGER, defaultValue));
+        type.leaves.add(new Leaf(name, ParameterType.INTEGER, defaultValue));
     }
 
     public void bool(String name) {
-        leaves.add(new Leaf(name, key(name), ParameterType.BOOLEAN, null));
+        type.leaves.add(new Leaf(name, ParameterType.BOOLEAN, null));
     }
 
     public void bool(String name, boolean defaultValue) {
-        leaves.add(new Leaf(name, key(name), ParameterType.BOOLEAN, defaultValue));
+        type.leaves.add(new Leaf(name, ParameterType.BOOLEAN, defaultValue));
     }
 
+    // --- DSL: groups ---------------------------------------------------------------------------------
+
+    /** An inline group: an anonymous type used at this one mount. */
     public void group(String name, Action<? super BuildParametersSchema> action) {
-        BuildParametersSchema child = new BuildParametersSchema(key(name), name, classNameFor(key(name)));
-        action.execute(child);
-        groups.add(child);
+        GroupType anonymous = defineType(capitalize(name), action);
+        type.mounts.add(new Mount(name, anonymous));
+    }
+
+    /** Define a reusable group type that can be mounted at several places. */
+    public GroupType groupType(String typeName, Action<? super BuildParametersSchema> action) {
+        return defineType(typeName, action);
+    }
+
+    /** Mount a (typically reusable) group type under {@code name}. */
+    public void group(String name, GroupType groupType) {
+        type.mounts.add(new Mount(name, groupType));
+    }
+
+    private GroupType defineType(String simpleClassName, Action<? super BuildParametersSchema> action) {
+        GroupType newType = new GroupType(simpleClassName, false);
+        registry.add(newType);
+        action.execute(new BuildParametersSchema(newType, registry));
+        return newType;
     }
 
     // --- model accessors -----------------------------------------------------------------------------
 
-    public String getSimpleClassName() {
-        return simpleClassName;
-    }
-
-    /** The accessor (getter) name exposed to build scripts, e.g. {@code replica}. */
-    public String getLocalName() {
-        return localName;
-    }
-
-    public String getFqcn() {
-        return GENERATED_PACKAGE + "." + simpleClassName;
-    }
-
-    public List<Leaf> getLeaves() {
-        return leaves;
-    }
-
-    public List<BuildParametersSchema> getGroups() {
-        return groups;
-    }
-
     public boolean isEmpty() {
-        return leaves.isEmpty() && groups.isEmpty();
+        return type.leaves.isEmpty() && type.mounts.isEmpty();
     }
 
-    private String key(String name) {
-        return prefix.isEmpty() ? name : prefix + "." + name;
+    /** Every generated type reachable from the root, each present exactly once. */
+    public List<GroupType> getAllTypes() {
+        return registry;
     }
 
-    /** Derive a collision-free class name from a dotted path, e.g. {@code database.replica -> DatabaseReplica}. */
-    private static String classNameFor(String dottedPath) {
-        StringBuilder sb = new StringBuilder();
-        for (String segment : dottedPath.split("\\.")) {
-            if (!segment.isEmpty()) {
-                sb.append(Character.toUpperCase(segment.charAt(0))).append(segment.substring(1));
-            }
-        }
-        return sb.toString();
+    private static String capitalize(String s) {
+        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 }

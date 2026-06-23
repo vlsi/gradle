@@ -17,112 +17,138 @@ package org.gradlex.buildparameters.poc.codegen;
 
 import org.gradlex.buildparameters.poc.runtime.Params;
 import org.gradlex.buildparameters.poc.schema.BuildParametersSchema;
+import org.gradlex.buildparameters.poc.schema.BuildParametersSchema.GroupType;
+import org.gradlex.buildparameters.poc.schema.BuildParametersSchema.Leaf;
+import org.gradlex.buildparameters.poc.schema.BuildParametersSchema.Mount;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * Emits the accessor classes as bytecode using ASM — no javac, no extra Gradle project.
  *
- * <p>For each group node a class is generated with:
- * <ul>
- *     <li>a {@code private final ProviderFactory providers} field,</li>
- *     <li>a {@code (ProviderFactory)} constructor,</li>
- *     <li>a {@code Provider<T> getXxx()} for each leaf, whose body is a single {@code invokestatic} into
- *         {@link Params}, and</li>
- *     <li>a {@code GroupType getXxx()} for each nested group, whose body simply news up the child class.</li>
- * </ul>
- * Every method body is straight-line code, so no stack-map frames are required and {@code COMPUTE_MAXS}
- * is sufficient (avoiding ASM's {@code COMPUTE_FRAMES} class-hierarchy lookups for not-yet-loaded types).
+ * <p>One class is generated per {@link GroupType}. Each class is <em>prefix-parameterized</em>: it holds a
+ * {@code ProviderFactory} and a dotted key {@code prefix}, so the same class can be mounted at several
+ * places and still resolve distinct properties. Leaf getters are a single {@code invokestatic} into
+ * {@link Params}; mount getters new up the child class with {@code Params.childPrefix(prefix, name)}.</p>
+ *
+ * <p>Every method body is straight-line code, so {@code COMPUTE_MAXS} suffices (no stack-map frames).</p>
  */
 public final class AsmAccessorGenerator {
 
     private static final String PROVIDER = "org/gradle/api/provider/Provider";
     private static final String PROVIDER_FACTORY = "org/gradle/api/provider/ProviderFactory";
     private static final String PROVIDER_FACTORY_DESC = "L" + PROVIDER_FACTORY + ";";
+    private static final String STRING_DESC = "Ljava/lang/String;";
     private static final String PARAMS = Type.getInternalName(Params.class);
 
     /**
      * @return map of binary class name (e.g. {@code org.gradlex.buildparameters.generated.BuildParameters})
      *         to its bytecode.
      */
-    public Map<String, byte[]> generate(BuildParametersSchema root) {
+    public Map<String, byte[]> generate(BuildParametersSchema schema) {
+        Map<String, GroupType> byName = new HashMap<>();
+        for (GroupType type : schema.getAllTypes()) {
+            GroupType previous = byName.put(type.getSimpleClassName(), type);
+            if (previous != null && previous != type) {
+                throw new IllegalStateException("Two parameter groups generate the same class name '"
+                    + type.getSimpleClassName() + "'. Give the groups distinct names, or factor the shared "
+                    + "shape into a reusable groupType(\"" + type.getSimpleClassName() + "\") { ... }.");
+            }
+        }
+
         Map<String, byte[]> classes = new LinkedHashMap<>();
-        generateClass(root, classes);
+        for (GroupType type : schema.getAllTypes()) {
+            classes.put(type.getFqcn(), generateClass(type));
+        }
         return classes;
     }
 
-    private void generateClass(BuildParametersSchema node, Map<String, byte[]> out) {
-        String internalName = node.getFqcn().replace('.', '/');
+    private byte[] generateClass(GroupType type) {
+        String internalName = type.getFqcn().replace('.', '/');
 
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         cw.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL, internalName, null, "java/lang/Object", null);
 
         cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, "providers", PROVIDER_FACTORY_DESC, null, null).visitEnd();
+        cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, "prefix", STRING_DESC, null, null).visitEnd();
 
-        generateConstructor(cw, internalName);
+        generateConstructor(cw, internalName, type.isRoot());
 
-        for (BuildParametersSchema.Leaf leaf : node.getLeaves()) {
+        for (Leaf leaf : type.getLeaves()) {
             generateLeafGetter(cw, internalName, leaf);
         }
-        for (BuildParametersSchema child : node.getGroups()) {
-            generateGroupGetter(cw, internalName, child);
-            generateClass(child, out); // recurse
+        for (Mount mount : type.getMounts()) {
+            generateMountGetter(cw, internalName, mount);
         }
 
         cw.visitEnd();
-        out.put(node.getFqcn(), cw.toByteArray());
+        return cw.toByteArray();
     }
 
-    private void generateConstructor(ClassWriter cw, String internalName) {
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "(" + PROVIDER_FACTORY_DESC + ")V", null, null);
+    /**
+     * The root takes just {@code (ProviderFactory)} and uses an empty prefix (so it can be instantiated by
+     * the plugin uniformly); every other class takes {@code (ProviderFactory, String prefix)}.
+     */
+    private void generateConstructor(ClassWriter cw, String internalName, boolean root) {
+        String descriptor = root ? "(" + PROVIDER_FACTORY_DESC + ")V" : "(" + PROVIDER_FACTORY_DESC + STRING_DESC + ")V";
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", descriptor, null, null);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         mv.visitFieldInsn(Opcodes.PUTFIELD, internalName, "providers", PROVIDER_FACTORY_DESC);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        if (root) {
+            mv.visitLdcInsn("");
+        } else {
+            mv.visitVarInsn(Opcodes.ALOAD, 2);
+        }
+        mv.visitFieldInsn(Opcodes.PUTFIELD, internalName, "prefix", STRING_DESC);
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
-    private void generateLeafGetter(ClassWriter cw, String internalName, BuildParametersSchema.Leaf leaf) {
-        String getterName = getterName(leaf.getName());
+    private void generateLeafGetter(ClassWriter cw, String internalName, Leaf leaf) {
         String elementType; // boxed element type for the Provider<T> signature
         String paramsMethod;
-        String paramsDesc;
+        String boxedDesc;
         switch (leaf.getType()) {
             case STRING:
                 elementType = "java/lang/String";
                 paramsMethod = "string";
-                paramsDesc = "(" + PROVIDER_FACTORY_DESC + "Ljava/lang/String;Ljava/lang/String;)L" + PROVIDER + ";";
+                boxedDesc = STRING_DESC;
                 break;
             case INTEGER:
                 elementType = "java/lang/Integer";
                 paramsMethod = "integer";
-                paramsDesc = "(" + PROVIDER_FACTORY_DESC + "Ljava/lang/String;Ljava/lang/Integer;)L" + PROVIDER + ";";
+                boxedDesc = "Ljava/lang/Integer;";
                 break;
             case BOOLEAN:
                 elementType = "java/lang/Boolean";
                 paramsMethod = "bool";
-                paramsDesc = "(" + PROVIDER_FACTORY_DESC + "Ljava/lang/String;Ljava/lang/Boolean;)L" + PROVIDER + ";";
+                boxedDesc = "Ljava/lang/Boolean;";
                 break;
             default:
                 throw new IllegalStateException("Unknown type: " + leaf.getType());
         }
-
-        // Generic return signature so Kotlin/Groovy callers see Provider<String>, Provider<Integer>, ...
+        String paramsDesc = "(" + PROVIDER_FACTORY_DESC + STRING_DESC + STRING_DESC + boxedDesc + ")L" + PROVIDER + ";";
         String signature = "()L" + PROVIDER + "<L" + elementType + ";>;";
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, getterName, "()L" + PROVIDER + ";", signature, null);
+
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, getterName(leaf.getName()), "()L" + PROVIDER + ";", signature, null);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, internalName, "providers", PROVIDER_FACTORY_DESC);
-        mv.visitLdcInsn(leaf.getKey());
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, internalName, "prefix", STRING_DESC);
+        mv.visitLdcInsn(leaf.getName());
         pushDefault(mv, leaf);
         mv.visitMethodInsn(Opcodes.INVOKESTATIC, PARAMS, paramsMethod, paramsDesc, false);
         mv.visitInsn(Opcodes.ARETURN);
@@ -130,7 +156,7 @@ public final class AsmAccessorGenerator {
         mv.visitEnd();
     }
 
-    private void pushDefault(MethodVisitor mv, BuildParametersSchema.Leaf leaf) {
+    private void pushDefault(MethodVisitor mv, Leaf leaf) {
         Object def = leaf.getDefaultValue();
         if (def == null) {
             mv.visitInsn(Opcodes.ACONST_NULL);
@@ -153,16 +179,23 @@ public final class AsmAccessorGenerator {
         }
     }
 
-    private void generateGroupGetter(ClassWriter cw, String ownerInternalName, BuildParametersSchema child) {
-        String childInternal = child.getFqcn().replace('.', '/');
-        String getterName = getterName(child.getLocalName());
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, getterName, "()L" + childInternal + ";", null, null);
+    private void generateMountGetter(ClassWriter cw, String ownerInternalName, Mount mount) {
+        String childInternal = mount.getType().getFqcn().replace('.', '/');
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, getterName(mount.getName()), "()L" + childInternal + ";", null, null);
         mv.visitCode();
         mv.visitTypeInsn(Opcodes.NEW, childInternal);
         mv.visitInsn(Opcodes.DUP);
+        // arg 1: this.providers
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, ownerInternalName, "providers", PROVIDER_FACTORY_DESC);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, childInternal, "<init>", "(" + PROVIDER_FACTORY_DESC + ")V", false);
+        // arg 2: Params.childPrefix(this.prefix, "<mountName>")
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, ownerInternalName, "prefix", STRING_DESC);
+        mv.visitLdcInsn(mount.getName());
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, PARAMS, "childPrefix",
+            "(" + STRING_DESC + STRING_DESC + ")" + STRING_DESC, false);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, childInternal, "<init>",
+            "(" + PROVIDER_FACTORY_DESC + STRING_DESC + ")V", false);
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();

@@ -82,6 +82,66 @@ class BuildParametersPluginFunctionalTest {
         "}",
         "");
 
+    // --- Reusable group types -----------------------------------------------------------------------
+
+    private static final String REUSE_SETTINGS = String.join("\n",
+        "plugins {",
+        "    id 'org.gradlex.buildparameters.poc'",
+        "}",
+        "",
+        "buildParameters {",
+        "    def javaDistribution = groupType('JavaDistribution') {",
+        "        it.string('version', '17')",
+        "        it.string('vendor', 'adoptium')",
+        "    }",
+        "    group('buildJvm', javaDistribution)",
+        "    group('testJvm', javaDistribution)",
+        "}",
+        "",
+        "rootProject.name = 'consumer'",
+        "");
+
+    private static final String REUSE_BUILD = String.join("\n",
+        "import org.gradle.api.provider.Provider",
+        "import org.gradlex.buildparameters.generated.BuildParameters",
+        "import org.gradlex.buildparameters.generated.JavaDistribution",
+        "",
+        "val params = the<BuildParameters>()",
+        "",
+        "// A single helper applied to BOTH mounts. This only compiles if buildJvm and testJvm share the",
+        "// generated JavaDistribution type -- i.e. it is the proof that the group type is reused.",
+        "fun coordinates(jvm: JavaDistribution): Provider<String> =",
+        "    jvm.version.zip(jvm.vendor) { version, vendor -> \"$vendor@$version\" }",
+        "",
+        "tasks.register(\"printJvms\") {",
+        "    val build = coordinates(params.buildJvm)",
+        "    val test = coordinates(params.testJvm)",
+        "    inputs.property(\"build\", build)",
+        "    inputs.property(\"test\", test)",
+        "    doLast {",
+        "        println(\"buildJvm=\" + build.get())",
+        "        println(\"testJvm=\" + test.get())",
+        "    }",
+        "}",
+        "");
+
+    /**
+     * Factor a "java distribution" group out as a reusable {@code groupType} and mount it at both
+     * {@code buildJvm} and {@code testJvm}. Both accessors are the same generated type (the shared
+     * {@code coordinates(JavaDistribution)} helper compiles), yet each reads its own prefixed properties
+     * ({@code buildJvm.version} vs {@code testJvm.version}).
+     */
+    @Test
+    void reusableGroupTypeIsSharedAcrossMounts() throws IOException {
+        write("settings.gradle", REUSE_SETTINGS);
+        write("build.gradle.kts", REUSE_BUILD);
+
+        BuildResult result = run("printJvms", "-PtestJvm.version=21");
+
+        assertContains(result.getOutput(), "buildJvm=adoptium@17"); // both defaults
+        assertContains(result.getOutput(), "testJvm=adoptium@21");  // version overridden per mount
+    }
+
     // --- Isolated Projects (multi-project) ----------------------------------------------------------
 
     private static final String IP_SETTINGS = String.join("\n",

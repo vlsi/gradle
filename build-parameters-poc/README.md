@@ -37,6 +37,8 @@ Running `gradle test` (Gradle 8.14.3 here) green demonstrates, end to end:
 6. **Isolated Projects** — a multi-project build (root + subproject) configured with
    `org.gradle.unsafe.isolated-projects=true` and `--configuration-cache-problems=fail` runs green, so
    the per-project registration produces zero IP violations.
+7. **Reusable group types** — a `groupType` can be factored out and mounted in several places, generating
+   a single shared accessor type (see below).
 
 ## How it works
 
@@ -71,6 +73,40 @@ Values flow through `providers.gradleProperty(...)` with **named, `Serializable`
 (`Params.StringToInteger`, …) rather than lambdas, so the resulting `Provider`s serialize cleanly into the
 Configuration Cache. The generated class is only needed at configuration time; on a CC hit nothing here
 re-runs.
+
+## Reusable group types (DSL extensibility)
+
+The DSL is extensible in two senses:
+
+- **Authoring reuse** is free — the settings DSL is just code, so the body of a group can be a function
+  applied in several `group { }` blocks. (But that alone still generates a *distinct* type per mount.)
+- **Type reuse** — factor a group out as a named `groupType` and mount it wherever you like; all mounts
+  share one generated accessor type:
+
+  ```groovy
+  buildParameters {
+      def javaDistribution = groupType('JavaDistribution') {
+          it.string('version', '17')
+          it.string('vendor', 'adoptium')
+      }
+      group('buildJvm', javaDistribution)
+      group('testJvm', javaDistribution)
+  }
+  ```
+  ```kotlin
+  // One helper for both mounts — compiles only because they share the JavaDistribution type:
+  fun coordinates(jvm: JavaDistribution) = jvm.version.zip(jvm.vendor) { v, vendor -> "$vendor@$v" }
+  coordinates(params.buildJvm)   // reads buildJvm.version / buildJvm.vendor
+  coordinates(params.testJvm)    // reads testJvm.version  / testJvm.vendor
+  ```
+
+This works because generated group classes are **prefix-parameterized**: each carries the dotted key
+prefix of its mount point (`buildJvm.`, `testJvm.`) and resolves `prefix + key` at runtime, so one class
+serves every mount. `javap` confirms exactly two classes are generated — `BuildParameters` and a single
+`JavaDistribution` — and the root's `getBuildJvm()`/`getTestJvm()` both return that one type. The schema
+model (`BuildParametersSchema`) separates a group **type** (`GroupType`, one generated class) from its
+**mounts** (`Mount`); the generator dedups types and errors clearly if two distinct groups would collide
+on a class name. (Per-mount default overrides are not implemented — a reusable type's defaults are shared.)
 
 ## The Configuration Cache finding (the interesting part)
 
