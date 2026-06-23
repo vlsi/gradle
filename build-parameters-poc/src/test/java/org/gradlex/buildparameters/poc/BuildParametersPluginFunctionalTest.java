@@ -142,6 +142,65 @@ class BuildParametersPluginFunctionalTest {
         assertContains(result.getOutput(), "testJvm=adoptium@21");  // version overridden per mount
     }
 
+    // --- Cross-team composition (group type owned by another artifact) ------------------------------
+
+    private static final String CROSS_SETTINGS = String.join("\n",
+        "plugins {",
+        "    id 'org.gradlex.buildparameters.poc'",
+        "}",
+        "",
+        "// 'team A' owns the JavaDistribution type; team B (this build) just mounts it.",
+        "import org.gradlex.buildparameters.poc.sample.teama.JavaDistributions",
+        "",
+        "buildParameters {",
+        "    group('buildJvm', JavaDistributions.javaDistribution())",
+        "    group('testJvm', JavaDistributions.javaDistribution())",
+        "}",
+        "",
+        "rootProject.name = 'consumer'",
+        "");
+
+    private static final String CROSS_BUILD = String.join("\n",
+        "import org.gradlex.buildparameters.generated.BuildParameters",
+        "import org.gradlex.buildparameters.poc.sample.teama.JavaDistribution",
+        "import org.gradlex.buildparameters.poc.sample.teama.JvmReport",
+        "",
+        "val params = the<BuildParameters>()",
+        "",
+        "// The accessor's STATIC type is team A's published interface (would not compile otherwise),",
+        "// and team A's own JvmReport consumes the very same type.",
+        "val buildJvm: JavaDistribution = params.buildJvm",
+        "val testJvm: JavaDistribution = params.testJvm",
+        "",
+        "tasks.register(\"printJvms\") {",
+        "    val build = JvmReport.describe(buildJvm)",
+        "    val test = JvmReport.describe(testJvm)",
+        "    inputs.property(\"build\", build)",
+        "    inputs.property(\"test\", test)",
+        "    doLast {",
+        "        println(\"buildJvm=\" + build.get())",
+        "        println(\"testJvm=\" + test.get())",
+        "    }",
+        "}",
+        "");
+
+    /**
+     * Cross-plugin composition: the {@code JavaDistribution} group type is owned by another artifact
+     * ("team A"). The consumer mounts it twice; the generated accessor returns team A's published type
+     * (proven by the explicit {@code val buildJvm: JavaDistribution = ...}), and team A's own
+     * {@code JvmReport} consumes the same type. Each mount still reads its own prefixed properties.
+     */
+    @Test
+    void groupTypeCanBeOwnedByAnotherArtifact() throws IOException {
+        write("settings.gradle", CROSS_SETTINGS);
+        write("build.gradle.kts", CROSS_BUILD);
+
+        BuildResult result = run("printJvms", "-PtestJvm.version=21");
+
+        assertContains(result.getOutput(), "buildJvm=adoptium@17");
+        assertContains(result.getOutput(), "testJvm=adoptium@21");
+    }
+
     // --- Isolated Projects (multi-project) ----------------------------------------------------------
 
     private static final String IP_SETTINGS = String.join("\n",

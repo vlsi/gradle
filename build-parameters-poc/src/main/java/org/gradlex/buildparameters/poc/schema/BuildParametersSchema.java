@@ -65,22 +65,35 @@ public class BuildParametersSchema {
         }
     }
 
-    /** A mount: exposes a {@link GroupType} under {@code name} on the enclosing group. */
+    /** A mount: exposes a group under {@code name} on the enclosing group. The group is either an internal
+     * generated {@link GroupType} or an {@link ExternalGroupType} supplied by another artifact. */
     public static final class Mount {
         private final String name;
-        private final GroupType type;
+        private final GroupType internalType;
+        private final ExternalGroupType externalType;
 
-        Mount(String name, GroupType type) {
+        Mount(String name, GroupType internalType, ExternalGroupType externalType) {
             this.name = name;
-            this.type = type;
+            this.internalType = internalType;
+            this.externalType = externalType;
         }
 
         public String getName() {
             return name;
         }
 
-        public GroupType getType() {
-            return type;
+        public boolean isExternal() {
+            return externalType != null;
+        }
+
+        /** Non-null when {@link #isExternal()} is false. */
+        public GroupType getInternalType() {
+            return internalType;
+        }
+
+        /** Non-null when {@link #isExternal()} is true. */
+        public ExternalGroupType getExternalType() {
+            return externalType;
         }
     }
 
@@ -162,7 +175,7 @@ public class BuildParametersSchema {
     /** An inline group: an anonymous type used at this one mount. */
     public void group(String name, Action<? super BuildParametersSchema> action) {
         GroupType anonymous = defineType(capitalize(name), action);
-        type.mounts.add(new Mount(name, anonymous));
+        type.mounts.add(new Mount(name, anonymous, null));
     }
 
     /** Define a reusable group type that can be mounted at several places. */
@@ -172,7 +185,12 @@ public class BuildParametersSchema {
 
     /** Mount a (typically reusable) group type under {@code name}. */
     public void group(String name, GroupType groupType) {
-        type.mounts.add(new Mount(name, groupType));
+        type.mounts.add(new Mount(name, groupType, null));
+    }
+
+    /** Mount a group type owned by another artifact (cross-plugin composition). */
+    public void group(String name, ExternalGroupType externalType) {
+        type.mounts.add(new Mount(name, null, externalType));
     }
 
     private GroupType defineType(String simpleClassName, Action<? super BuildParametersSchema> action) {

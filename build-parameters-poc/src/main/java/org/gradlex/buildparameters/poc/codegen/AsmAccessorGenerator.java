@@ -84,7 +84,11 @@ public final class AsmAccessorGenerator {
             generateLeafGetter(cw, internalName, leaf);
         }
         for (Mount mount : type.getMounts()) {
-            generateMountGetter(cw, internalName, mount);
+            if (mount.isExternal()) {
+                generateExternalMountGetter(cw, internalName, mount);
+            } else {
+                generateMountGetter(cw, internalName, mount);
+            }
         }
 
         cw.visitEnd();
@@ -180,7 +184,7 @@ public final class AsmAccessorGenerator {
     }
 
     private void generateMountGetter(ClassWriter cw, String ownerInternalName, Mount mount) {
-        String childInternal = mount.getType().getFqcn().replace('.', '/');
+        String childInternal = mount.getInternalType().getFqcn().replace('.', '/');
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, getterName(mount.getName()), "()L" + childInternal + ";", null, null);
         mv.visitCode();
         mv.visitTypeInsn(Opcodes.NEW, childInternal);
@@ -189,16 +193,41 @@ public final class AsmAccessorGenerator {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, ownerInternalName, "providers", PROVIDER_FACTORY_DESC);
         // arg 2: Params.childPrefix(this.prefix, "<mountName>")
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, ownerInternalName, "prefix", STRING_DESC);
-        mv.visitLdcInsn(mount.getName());
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC, PARAMS, "childPrefix",
-            "(" + STRING_DESC + STRING_DESC + ")" + STRING_DESC, false);
+        pushChildPrefix(mv, ownerInternalName, mount.getName());
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, childInternal, "<init>",
             "(" + PROVIDER_FACTORY_DESC + STRING_DESC + ")V", false);
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    /**
+     * A mount onto an externally-owned type: {@code return <Factory>.<method>(providers, childPrefix)}.
+     * No class is generated for the external type — it is supplied by another artifact.
+     */
+    private void generateExternalMountGetter(ClassWriter cw, String ownerInternalName, Mount mount) {
+        String iface = mount.getExternalType().getInterfaceInternalName();
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, getterName(mount.getName()), "()L" + iface + ";", null, null);
+        mv.visitCode();
+        // arg 1: this.providers
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, ownerInternalName, "providers", PROVIDER_FACTORY_DESC);
+        // arg 2: Params.childPrefix(this.prefix, "<mountName>")
+        pushChildPrefix(mv, ownerInternalName, mount.getName());
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, mount.getExternalType().getFactoryOwnerInternalName(),
+            mount.getExternalType().getFactoryMethod(), "(" + PROVIDER_FACTORY_DESC + STRING_DESC + ")L" + iface + ";", false);
+        mv.visitInsn(Opcodes.ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    /** Push {@code Params.childPrefix(this.prefix, "<mountName>")} onto the stack. */
+    private void pushChildPrefix(MethodVisitor mv, String ownerInternalName, String mountName) {
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, ownerInternalName, "prefix", STRING_DESC);
+        mv.visitLdcInsn(mountName);
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, PARAMS, "childPrefix",
+            "(" + STRING_DESC + STRING_DESC + ")" + STRING_DESC, false);
     }
 
     private static String getterName(String propertyName) {
