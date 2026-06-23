@@ -15,11 +15,13 @@
  */
 package org.gradlex.buildparameters.poc;
 
+import org.gradle.api.IsolatedAction;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.internal.GradleInternal;
 import org.gradle.api.internal.initialization.ClassLoaderScope;
+import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.invocation.Gradle;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.internal.classpath.DefaultClassPath;
@@ -28,8 +30,8 @@ import org.gradlex.buildparameters.poc.schema.BuildParametersSchema;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.UncheckedIOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -47,14 +49,15 @@ import java.util.Map;
  *         the parameter <em>schema</em> (shape) — just like a version catalog is declared in settings.</li>
  *     <li>At {@code gradle.projectsLoaded} — the single lifecycle window where the base project
  *         {@link ClassLoaderScope} exists but is not yet locked (see
- *         {@code BuildTreePreparingProjectsPreparer}) — it:
- *         <ul>
- *             <li>emits the accessor classes as bytecode via ASM into a stable directory,</li>
- *             <li>{@code export()}s that directory into the base project scope so the classes are visible
- *                 to every build script compiled afterwards, and</li>
- *             <li>registers a typed {@code buildParameters} extension on every project.</li>
- *         </ul>
- *     </li>
+ *         {@code BuildTreePreparingProjectsPreparer}) — it emits the accessor classes as bytecode via ASM
+ *         into a stable directory and {@code export()}s that directory into the base project scope so the
+ *         classes are visible to every build script compiled afterwards. This step mutates only shared
+ *         build-logic classloader state; it never touches a project.</li>
+ *     <li>The typed {@code buildParameters} extension is registered per project from an
+ *         {@linkplain org.gradle.api.IsolatedAction isolated} {@code gradle.lifecycle.beforeProject}
+ *         action. The action captures only the generated class <em>name</em> (a {@link String}) and
+ *         re-loads the class from each project's own scope, so it is safe under <b>Isolated Projects</b>
+ *         (no captured {@code ClassLoader}, no cross-project access).</li>
  * </ol>
  *
  * <p>The values themselves flow through {@code providers.gradleProperty(...)} providers, so they are lazy
@@ -64,6 +67,9 @@ public class BuildParametersSettingsPlugin implements Plugin<Settings> {
 
     public static final String EXTENSION_NAME = "buildParameters";
 
+    private static final String ROOT_FQCN =
+        BuildParametersSchema.GENERATED_PACKAGE + "." + BuildParametersSchema.ROOT_SIMPLE_NAME;
+
     @Override
     public void apply(Settings settings) {
         // (1) Settings-time DSL: collect the schema. Populated by the settings script body, which runs
@@ -71,18 +77,25 @@ public class BuildParametersSettingsPlugin implements Plugin<Settings> {
         BuildParametersSchema schema = settings.getExtensions().create(EXTENSION_NAME, BuildParametersSchema.class);
 
         Gradle gradle = settings.getGradle();
-        gradle.projectsLoaded(g -> generateAndWire(g, schema));
+
+        // (2) Generate + export the accessor classes. Shared build-logic state only — no project access.
+        gradle.projectsLoaded(g -> generateAndExport(g, schema));
+
+        // (3) Register the typed extension per project via an isolated action. It captures only the class
+        // name; the ClassLoader and the generated class are resolved per project, inside the action, so
+        // this is compatible with both the Configuration Cache and Isolated Projects.
+        gradle.getLifecycle().beforeProject(new RegisterAccessorExtension(ROOT_FQCN));
     }
 
-    private void generateAndWire(Gradle gradle, BuildParametersSchema schema) {
+    private void generateAndExport(Gradle gradle, BuildParametersSchema schema) {
         if (schema.isEmpty()) {
             return;
         }
 
-        // (2a) Emit bytecode (no javac) into a GLOBAL, content-addressed workspace under the Gradle user
-        // home — NOT the project tree. This mirrors how Gradle generates version-catalog accessors and is
-        // what keeps the Configuration Cache valid: the directory path is a pure function of the schema,
-        // the bytes are deterministic, and we never probe the project's file system from build logic (such
+        // Emit bytecode (no javac) into a GLOBAL, content-addressed workspace under the Gradle user home —
+        // NOT the project tree. This mirrors how Gradle generates version-catalog accessors and is what
+        // keeps the Configuration Cache valid: the directory path is a pure function of the schema, the
+        // bytes are deterministic, and we never probe the project's file system from build logic (such
         // probes are instrumented and an "absent -> created" flip would invalidate the cache entry).
         Map<String, byte[]> classes = new AsmAccessorGenerator().generate(schema);
         File classesDir = new File(
@@ -90,22 +103,43 @@ public class BuildParametersSettingsPlugin implements Plugin<Settings> {
             "caches/build-parameters-poc/" + hash(classes) + "/classes");
         writeClasses(classes, classesDir);
 
-        // (2b) Export into the base project class loader scope while it is still mutable.
-        ClassLoaderScope baseScope = baseProjectClassLoaderScope(gradle);
-        baseScope.export(DefaultClassPath.of(classesDir));
-        ClassLoader exportLoader = baseScope.getExportClassLoader();
+        // Export into the base project class loader scope while it is still mutable.
+        baseProjectClassLoaderScope(gradle).export(DefaultClassPath.of(classesDir));
+    }
 
-        // (2c) Register the typed extension on every project (all projects already exist at projectsLoaded).
-        Class<?> rootType = loadGenerated(exportLoader, schema.getFqcn());
-        Constructor<?> ctor;
-        try {
-            ctor = rootType.getConstructor(ProviderFactory.class);
-        } catch (NoSuchMethodException e) {
-            throw new IllegalStateException("Generated accessor is missing its (ProviderFactory) constructor", e);
+    /**
+     * Isolated, per-project registration of the typed {@code buildParameters} extension.
+     *
+     * <p>Captures only the fully-qualified class name. The generated class is loaded from the project's own
+     * {@link ClassLoaderScope} (an ancestor of which exported it in
+     * {@link #generateAndExport}). If no parameters were declared the class will be absent and the action
+     * silently does nothing.</p>
+     */
+    static final class RegisterAccessorExtension implements IsolatedAction<Project>, Serializable {
+        private static final long serialVersionUID = 1L;
+
+        private final String fqcn;
+
+        RegisterAccessorExtension(String fqcn) {
+            this.fqcn = fqcn;
         }
-        for (Project project : gradle.getRootProject().getAllprojects()) {
-            Object accessor = newInstance(ctor, project.getProviders());
-            addExtension(project, rootType, accessor);
+
+        @Override
+        public void execute(Project project) {
+            ClassLoader loader = ((ProjectInternal) project).getClassLoaderScope().getLocalClassLoader();
+            Class<?> type;
+            try {
+                type = loader.loadClass(fqcn);
+            } catch (ClassNotFoundException notGenerated) {
+                return; // no build parameters declared -> nothing to register
+            }
+            Object accessor;
+            try {
+                accessor = type.getConstructor(ProviderFactory.class).newInstance(project.getProviders());
+            } catch (ReflectiveOperationException e) {
+                throw new IllegalStateException("Failed to instantiate generated accessor " + fqcn, e);
+            }
+            addExtension(project, type, accessor);
         }
     }
 
@@ -168,22 +202,6 @@ public class BuildParametersSettingsPlugin implements Plugin<Settings> {
     }
 
     // --- small reflection / IO helpers -------------------------------------------------------------
-
-    private static Class<?> loadGenerated(ClassLoader loader, String fqcn) {
-        try {
-            return loader.loadClass(fqcn);
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("Generated accessor " + fqcn + " was not visible on the build script classpath", e);
-        }
-    }
-
-    private static Object newInstance(Constructor<?> ctor, ProviderFactory providers) {
-        try {
-            return ctor.newInstance(providers);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Failed to instantiate generated accessor", e);
-        }
-    }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static void addExtension(Project project, Class<?> publicType, Object instance) {

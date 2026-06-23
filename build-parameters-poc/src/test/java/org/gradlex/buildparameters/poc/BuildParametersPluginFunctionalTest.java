@@ -82,6 +82,69 @@ class BuildParametersPluginFunctionalTest {
         "}",
         "");
 
+    // --- Isolated Projects (multi-project) ----------------------------------------------------------
+
+    private static final String IP_SETTINGS = String.join("\n",
+        "plugins {",
+        "    id 'org.gradlex.buildparameters.poc'",
+        "}",
+        "",
+        "buildParameters {",
+        "    string('greeting', 'hello')",
+        "    group('database') {",
+        "        it.integer('port', 5432)",
+        "    }",
+        "}",
+        "",
+        "rootProject.name = 'consumer'",
+        "include 'app'",
+        "");
+
+    private static final String IP_ROOT_BUILD = String.join("\n",
+        "import org.gradlex.buildparameters.generated.BuildParameters",
+        "val params = the<BuildParameters>()",
+        "tasks.register(\"printParams\") {",
+        "    val greeting = params.greeting",
+        "    inputs.property(\"greeting\", greeting)",
+        "    doLast { println(\"ROOT greeting=\" + greeting.get()) }",
+        "}",
+        "");
+
+    private static final String IP_APP_BUILD = String.join("\n",
+        "import org.gradlex.buildparameters.generated.BuildParameters",
+        "val params = the<BuildParameters>()",
+        "tasks.register(\"printParams\") {",
+        "    val dbPort = params.database.port",
+        "    inputs.property(\"dbPort\", dbPort)",
+        "    doLast { println(\"APP dbPort=\" + dbPort.get()) }",
+        "}",
+        "");
+
+    /**
+     * Isolated Projects is stricter than the Configuration Cache: each project is configured in isolation
+     * and cross-project access is forbidden. {@code --configuration-cache-problems=fail} makes any
+     * violation fail the build, so a green run here proves the per-project {@code beforeProject} isolated
+     * action registers the typed accessor without any IP problem — in both the root and the subproject.
+     */
+    @Test
+    void worksUnderIsolatedProjectsInAMultiProjectBuild() throws IOException {
+        write("settings.gradle", IP_SETTINGS);
+        write("gradle.properties", "org.gradle.unsafe.isolated-projects=true\n");
+        write("build.gradle.kts", IP_ROOT_BUILD);
+        write("app/build.gradle.kts", IP_APP_BUILD);
+
+        BuildResult first = run("printParams", "--configuration-cache-problems=fail");
+        assertContains(first.getOutput(), "Isolated projects is an incubating feature");
+        assertContains(first.getOutput(), "ROOT greeting=hello");
+        assertContains(first.getOutput(), "APP dbPort=5432");
+        assertContains(first.getOutput(), "Configuration cache entry stored");
+
+        BuildResult second = run("printParams", "--configuration-cache-problems=fail");
+        assertContains(second.getOutput(), "Reusing configuration cache");
+        assertContains(second.getOutput(), "ROOT greeting=hello");
+        assertContains(second.getOutput(), "APP dbPort=5432");
+    }
+
     @Test
     void typeSafeAccessorsSurviveConfigurationCacheRoundTrip() throws IOException {
         writeProject();
